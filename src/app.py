@@ -1,3 +1,4 @@
+from pathlib import Path
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -8,21 +9,26 @@ import pandas as pd
 import violin_plot
 import utils
 
+path = str(Path(__file__).parents[1])
+
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-root_path = '/home/mateuslopes/Documentos/Infoviz Complex Methods/'
-df = pd.read_csv(root_path + 'Datasets/data_set_repositories.csv')
-df_complex_methods = pd.read_csv(root_path + 'Datasets/data_set_top_complex_methods.csv')
-df_random_methods = pd.read_csv(root_path + 'Datasets/data_set_random_methods.csv')
-df_history_complex = pd.read_csv(root_path + 'Datasets/data_set_complexity_history_all_languages_top_complex.csv')
+df = pd.read_csv(path + '/Datasets/data_set_repositories.csv')
+df_complex_methods = pd.read_csv(path + '/Datasets/data_set_top_complex_methods.csv')
+df_random_methods = pd.read_csv(path + '/Datasets/data_set_random_methods.csv')
+df_history_complex = pd.read_csv(path + '/Datasets/data_set_complexity_history_all_languages_top_complex.csv')
 
 violin_plot = violin_plot.generate_violin_plot(df_complex_methods, df_random_methods)
 
 available_languages = df_complex_methods['language'].unique()
 
-color_discrete_map = {'C#': 'rgb(148, 140, 249)', 'C++': 'rgb(243, 130, 110)', 'Java': 'rgb(110, 218, 180)', 'JavaScript': 'rgb(194, 143, 250)', 'Python': 'rgb(255, 187, 136)'}
+color_discrete_map = {'C#': 'rgb(148, 140, 249)',
+                      'C++': 'rgb(243, 130, 110)',
+                      'Java': 'rgb(110, 218, 180)',
+                      'JavaScript': 'rgb(194, 143, 250)',
+                      'Python': 'rgb(255, 187, 136)'}
 
 app.layout = html.Div(children=[
     html.H2(children='Métodos Complexos'),
