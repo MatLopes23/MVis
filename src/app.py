@@ -9,7 +9,7 @@ import pandas as pd
 import violin_plot
 import utils
 
-path = str(Path(__file__).parents[0])
+path = str(Path(__file__).parents[1])
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
