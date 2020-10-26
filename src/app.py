@@ -14,6 +14,7 @@ path = str(Path(__file__).parents[1])
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = app.server
 
 df = pd.read_csv(path + '/Datasets/data_set_repositories.csv')
 df_complex_methods = pd.read_csv(path + '/Datasets/data_set_top_complex_methods.csv')
