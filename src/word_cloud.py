@@ -45,7 +45,7 @@ def generate_word_cloud(languages):
     stopwords.add("Feb")
     stopwords.add("https")
 
-    wc = WordCloud(width=800, height=800,scale=5, background_color="white", max_words=2000, mask=git_mask,
+    wc = WordCloud(width=100, height=100,scale=5, background_color="white", max_words=1000, mask=git_mask,
                 stopwords=stopwords, contour_width=4, contour_color='orange', min_word_length=3, colormap='hot').generate(text)
 
     wc.to_file(path.join(path_up+"/src", "word-cloud.png"))
