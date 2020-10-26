@@ -13,7 +13,6 @@ dash-core-components==1.12.1
 dash-html-components==1.1.1
 dash-renderer==1.8.1
 dash-table==4.10.1
-defer==1.0.6
 Deprecated==1.2.7
 distro-info===0.18ubuntu0.18.04.1
 EditorConfig==0.12.2
