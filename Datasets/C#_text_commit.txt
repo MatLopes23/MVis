@@ -1,0 +1,3610 @@
+Fix #1794: Avoid extra cast to double for ulong -> float conversionFix #1226: Use StackType.O for LdLen argument.Merge pull request #1030: Replace Mono.Cecil with System.Reflection.Metadata
+
+This PR ports ILSpy to System.Reflection.Metadata.
+It also contains a whole bunch of changes to our own high-level decompiler type system.
+
+For more details, see https://github.com/icsharpcode/ILSpy/wiki/srmAdd result type invariants for instruction arguments.Merge pull request #1000 from icsharpcode/floating-point-arithmetic
+
+Floating point arithmeticMerge pull request #923 from icsharpcode/csilview
+
+Add "IL with C#" view#899: Add calli opcode to ILAst#899: decode jmp instruction into tail call#899: Add cpblk and initblk instructions to ILAst.Add value parameter to Leave ctor.Merge Return instruction into Leave.Merge branch 'newdecompiler'
+
+This finally brings our new decompiler engine to the ILSpy master branch.
+Advantages of the new engine:
+ * better support for Roslyn-compiled binaries
+ * much more accurate decompilation, fixing tons of long-standing bugs, for example:
+    * Invalid goto jumping into block
+    * Decompiled code calls incorrect overload due to missing cast
+    * Integer arithmetic uses wrong sign or size due to missing casts
+
+The major changes in the new decompiler are:
+  * ILAst instructions now carry an IL stack type (enum StackType), so the bit width of operations is known.
+  * ILAst instructions no longer use C# types; those are introduced only when converting ILAst->C#.
+  * ILAst instruction set is reduced and now has clear semantics for each operation.
+  * ILAst uses (extended) basic blocks for control flow.
+  * Many transforms now are run per-block, which solves a number of problems related to transform pass ordering.
+  * In debug builds, transform steps can be tracked via the Stepper API to visualize the decompilation process.
+  * Instead of Cecil.TypeReference, the decompiler now uses the NRefactory TypeSystem.
+  * The required portions of ICSharpCode.NRefactory are included into ICSharpCode.Decompiler.Translate SequenceEqual for Sqlite and SqlServer byte arrays (#19594)
+Query: Convert Enumerable methods to queryable specified after ToList/ToArray/AsEnumerable
+
+- Convert all enumerable methods to queryable unless specified on query parameter (coming from closure)
+- Convert ICollection<T>.Count to Queryable.Count<T>()
+- Simplify (Queryable/CollectionNav/OwnedCollectionNav).(ToList/ToArray/AsEnumerable).AsQueryable to underlying queryable
+- Remove MaterializeCollectionNavigation when ToList/Enumerable.ToArray is called on collection navigation.
+- Convert Array.Length to Queryable.Count<T>()
+
+Resolves #19059
+Resolves #19060Query: Improvements to Navigation Expansion
+
+- Skip/Take does not force applying pending selector and changing shape.
+- Throw translation failure message for Querayble methods which we don't translate (hence we don't process in navigation expansion). Earlier we threw query failed message. Now Navigation Expansion does not throw QueryFailed error message from any place.
+- Unwrap type conversion for validating member access during include expansion so that we don't generate include when derived type's member is accessed.
+
+Resolves #18140
+Resolves #18374
+Resolves #18672
+Resolves #18734
+Resolves #19138
+Resolves #19207Seal private nested classes to avoid unneeded virtual methods
+
+Fixes #19066
+
+Also removed `GetTypeInfo` when it is not needed[automated] Merge branch 'release/3.1' => 'master' (#18641)
+
+[automated] Merge branch 'release/3.1' => 'master'Merge branch 'release/3.1'Revert "Use `is null` syntax (#13277)" (#13322)
+
+This reverts commit 6c03776d743edfdffc3e347a7d7249864b5e2447.Use `is null` syntax (#13277)
+
+Replace `== null` with `is null`Support null-conditional operators `?.` and `?[]` in PowerShell language (#10960)
+Enable tab completion for variable assignment that is enum (#10646)
+Cleanup: Use EndsWith(char) and StartsWith(char) (#9994)
+Style: Change 'String.' to 'string.' (#8568)
+Code cleanup: Add space after closing brace where needed (#8530)
+
+* Update TestService
+
+* Update WebListener
+
+* Update Controllers
+
+* Update ExpTest
+
+* Update MyApp
+
+* Update Logic
+
+* Update Logic
+
+* Update MyApp
+
+* Update Microsoft.Management.Infrastructure.CimCmdlets
+
+* Update Microsoft.PowerShell.Commands.Diagnostics
+
+* Update Microsoft.PowerShell.ScheduledJob
+
+* Update Microsoft.WSMan.Management
+
+* Update Microsoft.WSMan.Runtime
+
+* Update ResGen
+
+* Update TypeCatalogGen
+
+* Update commands
+
+* Update Eventing
+
+* Update Reader
+
+* Update utility
+
+* Update ShowCommand
+
+* Update trace
+
+* Update WebCmdlet
+
+* Update Common
+
+* Update CoreCLR
+
+* Update common
+
+* Update format-object
+
+* Update format-wide
+
+* Update out-file
+
+* Update out-printer
+
+* Update out-string
+
+* Update OutGridView
+
+* Update LocalAccounts
+
+* Update Commands
+
+* Update security
+
+* Update CoreCLR
+
+* Update DscSupport
+
+* Update engine
+
+* Update help
+
+* Update logging
+
+* Update namespaces
+
+* Update security
+
+* Update utils
+
+* Update config
+
+* Update perfCounters
+
+* Update tracing
+
+* Update cmdletization
+
+* Update other
+
+* Update cim
+
+* Update xml
+
+* Update CoreCLR
+
+* Update common
+
+* Update DefaultFormatters
+
+* Update out-console
+
+* Update out-textInterface
+
+* Update DisplayDatabase
+
+* Update Utilities
+
+* Update COM
+
+* Update ComInterop
+
+* Update CommandCompletion
+
+* Update debugger
+
+* Update ExperimentalFeature
+
+* Update hostifaces
+
+* Update interpreter
+
+* Update lang
+
+* Update Modules
+
+* Update parser
+
+* Update runtime
+
+* Update client
+
+* Update commands
+
+* Update common
+
+* Update fanin
+
+* Update server
+
+* Update WireDataFormat
+
+* Update Binding
+
+* Update Operations
+
+* Update interface
+
+* Update cmdletization
+
+* Update cim
+
+* Update management
+
+* Update WindowsTaskbarJumpList
+
+* Update mshCodeFactor code style cleanup: replace literal empty strings with 'string.Empty' (#6950)
+Fix tab completions for a hash table (#6839)
+
+Now working:
+- Get-Date | Sort-Object @{Expression=<tab>
+- Get-Date | Sort-Object @{Expression=...;<tab>Use consistent '(c)' for copyright symbol (#5210)
+
+- Remove the year about copyright
+- Fix casing of `All rights reserved`
+- Replace Unicode characters representing single quote with a single quoteFix bug where native.exe --<tab> would not call native completer (#3633)
+Fix tab completion with '@{<tab>' to avoid crash in PSReadline (#3626)
+
+Remove trailing whitespace (#3001)
+Merge pull request #2154 from jsoref/spelling-locals
+
+Spelling localsMerge pull request #1591 from lzybkr/code_formatting
+
+Code formattingMerge pull request #753 from PowerShell/vors/master
+
+Merge changes that removes psl-submodule to masterUse nameof operator (#12716)
+
+# PR Summary
+
+Using *Roslynator Command Line Tool version 0.1.0.4*
+
+* Fix RCS1015:
+  * `"argument"` → `nameof(argument)`
+  * `enum.ToString()` → `nameof(enum)`
+
+[RCS1015.log](https://github.com/PowerShell/PowerShell/files/4646102/RCS1015.log)
+
+
+## PR Context
+
+<!-- Provide a little reasoning as to why this Pull Request helps and why you have opened it. -->
+
+## PR Checklist
+
+- [x] [PR has a meaningful title](https://github.com/PowerShell/PowerShell/blob/master/.github/CONTRIBUTING.md#pull-request---submission)
+    - Use the present tense and imperative mood when describing your changes
+- [x] [Summarized changes](https://github.com/PowerShell/PowerShell/blob/master/.github/CONTRIBUTING.md#pull-request---submission)
+- [x] [Make sure all `.h`, `.cpp`, `.cs`, `.ps1` and `.psm1` files have the correct copyright header](https://github.com/PowerShell/PowerShell/blob/master/.github/CONTRIBUTING.md#pull-request---submission)
+- [x] This PR is ready to merge and is not [Work in Progress](https://github.com/PowerShell/PowerShell/blob/master/.github/CONTRIBUTING.md#pull-request---work-in-progress).
+    - If the PR is work in progress, please add the prefix `WIP:` or `[ WIP ]` to the beginning of the title (the `WIP` bot will keep its status check at `Pending` while the prefix is present) and remove the prefix when the PR is ready.
+- **[Breaking changes](https://github.com/PowerShell/PowerShell/blob/master/.github/CONTRIBUTING.md#making-breaking-changes)**
+    - [x] None
+    - **OR**
+    - [ ] [Experimental feature(s) needed](https://github.com/MicrosoftDocs/PowerShell-Docs/blob/staging/reference/6/Microsoft.PowerShell.Core/About/about_Experimental_Features.md)
+        - [ ] Experimental feature name(s): <!-- Experimental feature name(s) here -->
+- **User-facing changes**
+    - [x] Not Applicable
+    - **OR**
+    - [ ] [Documentation needed](https://github.com/PowerShell/PowerShell/blob/master/.github/CONTRIBUTING.md#pull-request---submission)
+        - [ ] Issue filed: <!-- Number/link of that issue here -->
+- **Testing - New and feature**
+    - [x] N/A or can only be tested interactively
+    - **OR**
+    - [ ] [Make sure you've added a new test if existing tests do not effectively test the code changed](https://github.com/PowerShell/PowerShell/blob/master/.github/CONTRIBUTING.md#before-submitting)
+- **Tooling**
+    - [x] I have considered the user experience from a tooling perspective and don't believe tooling will be impacted.
+    - **OR**
+    - [ ] I have considered the user experience from a tooling perspective and enumerated concerns in the summary. This may include:
+        - Impact on [PowerShell Editor Services](https://github.com/PowerShell/PowerShellEditorServices) which is used in the [PowerShell extension](https://github.com/PowerShell/vscode-powershell) for VSCode (which runs in a different PS Host).
+        - Impact on Completions (both in the console and in editors) - one of PowerShell's most powerful features.
+        - Impact on [PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer) (which provides linting & formatting in the editor extensions).
+        - Impact on [EditorSyntax](https://github.com/PowerShell/EditorSyntax) (which provides syntax highlighting with in VSCode, GitHub, and many other editors).Fix style issues (#10998)
+Cleanup:  use the built-in type alias (#10882)
+Use the original precision (prior-dotnet-core-3) for double/fload-to-string conversion (#9893)
+
+.NET Core changes to return "shortest roundtrippable string" by default for the ToString() method of double and float types. This results in ToString() for double/float values sometimes return a string in 17-digit/9-digit precision format. This PR updated the double/float-to-string conversion in PowerShell to continue using the old precision specifier before the change in .NET Core 3.0.Improve formatting performance by having better primitives on `PSObject` (#8785)
+
+By not doing excessive amounts of extra work, formatting can be sped up quite significantly (about 8x faster).
+The main change comes from adding new, more efficient, primitive to query an object for the existence of an instance member.
+The formatting system has been checking for if an object has properties other than some decorated properties added by PS remoting, and it doesn't this by retrieving all properties which results in heavy allocations and wasted cycles.
+By adding `GetFirstOrDefault` to `PSObject` and similar primitives to the underlying Adapters, we are able to return early, without having to get all properties back.Style: Change first char to upper in summary comments (#8597)
+Style: Add a space after "//" in comments and remove unneeded comments after "}" (#8576)
+Style: Add the ending period to the XML document texts (#8577)
+Style: Convert to upper first char in <param> and <exception> doc tags (#8556)
+Style: Add period before </param> and </exception> doc tags (#8553)
+Style: Add period before returns doc tag (#8535)
+
+- add period before "</returns>" doc tag
+- remove extra space before "</returns>" doc tag
+- convert first char after "<returns>" doc tag to upper caseClean up MshObject.cs and MshMemberInfo.cs (#7446)
+
+Clean up style issues.Remove empty xml comment lines (#7401)
+Bulk update code base to put 'null' on the right-hand-side of a comparison expression (#6949)
+Update copyright and license headers (#6134)
+
+Based on standard practices, we need to have a copyright and license notice at the top of each source file. Removed existing copyrights and updated/added copyright notices for .h, .cpp, .cs, .ps1, and .psm1 files.
+
+Updated module manifests for consistency to have Author = "PowerShell" and Company = "Microsoft Corporation". Removed multiple line breaks.
+
+Separate PR coming to update contribution document for new source files: #6140
+
+Manually reviewed each change.
+
+Fix #6073Remove CheckForSevereException and private FailFast
+
+Our private implementation of FailFast was likely introduced
+when each individual application needed it's own code to
+get Watson reports. The CLR takes care of this for us now,
+so we don't need our implementation.
+
+Our method CheckForSevereException was also introduced in
+the early days of the CLR - the exceptions it was checking
+for aren't actually raised the CLR anymore, they just FailFast.
+I removed them as there is a tiny bit of overhead (in code size)
+and also in the generated code, e.g. dynamic sites called the method.Merge pull request #2105 from jsoref/spelling-comments
+
+Spelling commentsMerge pull request #1620 from lzybkr/cleanup
+
+Cleanup -  - R# refactoringMerge PR #2063: Add support for C# 9 native integersMerge pull request #2045 from icsharpcode/unsafe
+
+Improved decompilation of unsafe codeFix #1924: preserve hexadecimal format when converting literal to wider typeMerge branch '5.0.x' of https://github.com/icsharpcode/ILSpyMerge branch '5.0.x' of https://github.com/icsharpcode/ILSpyFix #1614: Don't suppress all casts to unknown types
+
+Just those where we don't even know the name of the unknown type.Fix invalid code generated for impossible casts.Merge pull request #1600 from icsharpcode/throwExpression
+
+Support for throw expressionMerge pull request #1596 from icsharpcode/ref
+
+Improved decompilation of ref typed expressionsUpgrade C# 8.0 nullability support for Roslyn 3.2.0-beta4.Fix #1574: When re-introducing an explicit cast for an implicit user-defined conversion; ensure we use a direct cast and don't go through the code path for builtin conversions.Merge pull request #1425 from icsharpcode/nullable-reference-types
+
+C# 8.0 nullable reference typesFix #1333: Ensure we convert to the correct type when calling instance methods on value typesFix #1301: casts were unnecessarily marked as uncheckedFix #1309: Decompilation of dynamic casts.Add support for FormattableString patterns.Merge pull request #1134 from icsharpcode/tuple
+
+C# 7.0 tuplesAvoid redundant explicit boxing castsDo never add casts to 'void'.Merge remote-tracking branch 'origin/null-propagation'Add test case for #981, and fix decompilation of ?: operator on StackType.Ref (necessary to make the testcase compile).Fix #990: Invalid object cast for virtual call through pointerMerge pull request #988 from icsharpcode/expression-tree-instruction
+
+Implement support for expression treesFix #948: fix assertion when accessing fixed-size fields where StackType.Ref is expected.Fix #926: missing explicit casts for implicit operatorsFix #918: Conversion of bool literals to bool? not prettyMerge pull request #887 from icsharpcode/switch
+
+Switch#912: add setting for turning off implicit method group conversionsWhen possible, use implicit method group conversions to construct delegates.Remove redundant lambda casts.Avoid 'unchecked' annotation on float->double casts.Unpack implicit boxing conversions (casts to object).API review changes (#21960)
+
+Part of #20409Query: Add query logger to member/method translators (#21935)
+
+Resolves #17498Query: Translate Distinct operator over group element before aggregate (#21921)
+
+Resolves #17376Query: Translate GroupBy-Aggregate with condition (#21907)
+
+Resolves #18836
+Resolves #11711Query: Allow entity equality to work on client converted entity (#21780)
+
+Resolves #21768Query: Key comparison should use object.Equals internally in query (#21742)
+
+And associated changes to support translation.
+
+Resolves #19407Merge branch 'release/5.0-preview8'Query: API review changes (#21346)
+
+Part of #20409Fix inference issues around convert to object (#21125)
+
+Fixes #19688Specific message for method translation failure (#21178)
+
+Closes #21177Fix to #20612 - Throw helpful translation exception for String.Equals(String, StringComparison)
+
+Adding state to ExpressionTranslatingExpressionVisitor that stores the information about why translation failed. The information is bubbled up and added to the "translation failed" exception.
+Currently only doing this for string.Equals and non-mapped member propertiesQuery: Remove convert node around object.Equals with value types (#20775)
+
+Resolves #20534Query: Rewrite Entity Equality during translation phase
+
+Resolves #15080
+Implemented behavior:
+- If any part of composite key is null then key is null.
+- If comparing entity with null then check if "any" key value is null.
+- If comparing entity with non-null then check if "all" key values are non null.
+
+Resolves #20344
+Resolves #19431
+Resolves #13568
+Resolves #13655
+Since we already convert property access to nullable, if entity from client is null, make key value as null.
+
+Resolves #19676
+Clr type mismatch between proxy type and entity type is ignored.
+
+Resolves #20164
+Rewrites entity equality during translation
+
+Part of #18923Query: Add ability for translation pipeline to translate property access over a subquery
+
+This removes need to run subquery member pushdown after entity equality
+Part of #20164
+Part of #18923
+
+Also improves Cosmos recursive binding over embedded navigationsRevert "Fix to #18147 - Where bool column needs to convert to equality when value converter is applied"
+
+This reverts commit e922850b9fb52dd7cb9e5c04ba21dd79de02b9de.
+
+# Conflicts:
+#	test/EFCore.Specification.Tests/CustomConvertersTestBase.cs
+#	test/EFCore.SqlServer.FunctionalTests/CustomConvertersSqlServerTest.cs
+#	test/EFCore.Sqlite.FunctionalTests/CustomConvertersSqliteTest.csQuery: Introduce custom query root for TVF
+
+- Avoids having to do special processing in other visitors
+- Visit's method's argument correctly in other visitor (this means that if there is a navigation expansion required for a parameter it will be done automatically)
+- Remove Nav expansion factory not needed anymore
+- Rename ExpressionPrinter.VisitList to VisitCollection and take IReadOnlyCollection, that is what most expression uses.
+- Remove unnecessary exception message. They are part of a larger work item.
+
+Resolves #20146Fix #16712 Convert exceptions messages to resource stringsQuery: Add support for queryable functionsFix to #18147 - Where bool column needs to convert to equality when value converter is applied
+
+Fix is to detect bool columns with value converters (upon initial translation) and apply comparison with constant true (with the same mapping). Also, we need to recognize this pattern during SqlExpression optimization, so that it' doesn't get simplified from 'a == true' to 'a'
+
+Resolves #18147Query: Add indexed property support
+
+Part of #13610
+Resolves #15799Add nullable attributes/parameter checks for query
+
+Fixes #16705
+
+Attempted to add null checks when the API is a public-surface API, but not for purely internal APIs.
+
+There may be some mistakes here; I plan to do a bit more static analysis after the initial merge.
+
+Also fixed the ApiConsistencyTest to check pubternal types again (not sure why this was removed) and to check protected constructors.Merge branch 'release/3.1'Merge branch 'release/3.1'Merge branch 'release/3.1'Merge branch 'release/3.0'Merge branch 'release/3.0'Merge branch 'release/3.0'Merge branch 'release/3.0'Merge branch 'release/3.0'Merge branch 'release/3.0'Query API review changes
+
+Mostly moving types to different namespaces (internal or public), and a few renames.
+
+Also, checked where Cosmos and other providers were using internal types and made those pubic.
+
+Re-enabled API consistency, except for NotNull attributes (since these aren't breaking to add later.)
+
+Fixes #12084
+Fixes #15107
+Fixes #15695
+Fixes #15796Query: Add support for owned reference navigation (#16627)
+
+Part of #15285Query: Enable client eval in InMemory
+Also add support for Join/LeftJoin/SelectManyQuery: Move Property/Navigation binding to EntityProjection directly
+
+Support for Owned entities
+Part of #15285
+
+Also added SQL Assertion on Sqlite for LongCountUse some C# 8 switch expressionsMerge branch 'release/3.0-preview7'Query: Enable materialzing collections of arbirtary shape in projection
+
+Part of #15611
+Will send out separate PR to enable tests and fix edge case bugs
+
+This PR
+- Split out collection initialization/population for include to separate method due to type constraints
+- Swallow materialize collection navigation/ToList in projection. Rest of unknown methods, we will fall into client eval
+- Changes SqlTranslator to try translate & lift subquery always, allowing it to translate non Queryable defined but translatable methods
+- Make identifiers nullable always to identify null keys & no correlationMove extensions classes to consistent locations
+
+Fixes #14842Query: Allow property access on derived type by using type casting
+
+Resolves #15807
+Resolves #15848 (Since client eval for projection is already added)Query: Allow client projection to cause materialization
+
+This changes SqlTranslatingExpressionVisitor to return null rather than throwing InvalidCastExpression when something failed to translate to Sql
+
+Part of #15866Query: Add support for collection includeQuery: Implement inheritance support for relational layer
+
+- Add discriminator predicate in SelectExpression (filed #15808 to remove redundant)
+- Add TPH support in materializer. This happens at core level now
+- Add translation for is operator inside lambda
+- Add translation for OfType methodBetter access to EF.Property and indexer propertiesQuery: Lift subqueries projecting single scalar values
+
+Resolves #15705[For Your Eyes Only] Update Query PipeLine folderNew Query Pipeline (#14455)
+
+* New Query pipeline
+
+What works:
+Non-collection queries
+Sync/Async
+InMemory/Sqlite/SqlServer
+Method/Member translators
+Spatial
+
+What does not work:
+Cosmos provider - Tests are skipped in normal run so will fix later
+Collection queries - Includes/Correlated Subquery is not implemented yet
+Subquery lifting - Was dependent on nav rewrite
+A lot of small optimizations in expression tree/generated Sql
+Null semantics
+TPH
+Broader list at https://github.com/aspnet/EntityFrameworkCore/issues/14630
+
+Notes:
+Old files are not deleted yet. (keeping them for reference for now)
+Still target NS2.0
+Class names/namespaces are not final.
+Doc comments missing
+
+* Disabling testsAdd support for C# 9 init accessors.Merge pull request #1654 from icsharpcode/fancy-tooltips
+
+Rich Text Tooltips#1151: Support for ref readonly locals.Fix highlighting of 'ascending' and 'descending' query keywords.Merge pull request #1165 from icsharpcode/dynamic
+
+Dynamic supportFix highlighting of 'where' keyword in LINQ query clauses.Merge branch 'release/3.1'Merge branch 'release/3.0'Merge branch 'release/3.0'Query: Remove implicit convert nodes in query to avoid unnecessary cast in generated SQL
+
+Enable BuiltInDataTypeTests
+- Preserve convert nodes around parameters/constants in parameter extracting.
+- While translating to Sql, remove implicit convert nodes. Implicit convert nodes appear only for binary expressions since equality operators are not defined for all types
+- Apply explicit cast in SQL only when converted type is mapped.
+- Convert int value to enum value before printing literal (how old pipeline did it)
+
+Resolves #14159
+Resolves #15330
+Resolves #15948Turn off automatic client evaluation of queries
+
+Issue #14935
+
+* Tests are disabled if their primary purpose is to test queries.
+* Queries are re-written if the purpose of the test was not primarily to test the query.
+* All are tagged with this issue number so they can easily be found.Reformat test codePort compat tests to 2.1
+Fix breaking changes in RelationalTypeMapping and IndentedStringBuilder
+
+Fixes #10648Update new tests to run in 2.0.0 compat mode.Allow mapping sql_variant on SQL Server
+
+Issue #7043
+
+The type mapper will now map properties to sql_variant columns if:
+* The property is type object
+* The store type name is specified as sql_variant
+
+Also #10633 - set min batch size to 1 for type mapping tests so that batching and non-batching are tested.Use value converters for enums and allow enums to map to string columns
+
+Part of issues #242 and #1381
+
+Instead of using special code for materialization and parameter creation, type mappings now add an appropriate type converter for enum types that converts two and from the underlying numeric value. (Special code is still present for providers that are not updated and do not create mappings with converters.)
+
+This means that if the column is instead a string column, then a different converter can be used which converts to and from the string values of the enum. SQL Server and most other providers will get this for free when updating to 2.0 and adding support for value conversions. SQLite is the exception since it has weird type mapping.Update SQL Server type mappings
+
+Part of #242 and #6480
+
+These are the default conversions:
+
+* sbyte -> smallint
+* ushort -> int
+* uint -> bigint
+* ulong -> decimal(20, 0)
+* char -> nchar(1)
+
+These can be used by changing the store type:
+
+* sbyte -> byte (not order preserving)
+* ushort -> short (not order preserving)
+* uint -> int (not order preserving)
+* ulong -> long (not order preserving)
+* char -> other string types of any size: char, nchar, varchar, nvarchar, text
+* char -> int
+
+Also cleaned up the SQL Server type mapping tests to make them easier to understand.Use initial type conversions to map unsigned types on SQL Server
+
+Part of #242
+
+This is not a complete implementation of type conversions. It is enough to get conversions for ulong, uint, ushort, and sbyte mapped on SQL Server. The default mappings for these types are to their signed counterparts. We can discuss if we want to change that to something else--there are pros and cons of every conversion.Shorten source paths to avoid PathTooLongExceptionRemove some redundant parenthesisCode cleanupThrow in model validation for unqualified types like "nvarchar" and "varbinary"
+
+If the app really wants a data type like this with a length of one, then it should use, for example,  "nvarchar(1)". This stops apps from putting, for example, nvarchar and then setting a max length of 16 in the API and expecting this to be transformed into the type nvarchar(16).
+
+Also, some cleanup in the type mapper and model validator classes.Rename AspNet 5 folders and files.
+
+See https://github.com/aspnet/Announcements/issues/144 for more information.Rename EF.SqlServer => EF.MicrosoftSqlServerMerge branch 'release' into devRename EntityFramework -> EntityFramework7
+
+Per our NuGet Package Naming decisions, this renames all of our packages to EntityFramework7.*
+
+Resolves #2508Fix to #2365 - ArgumentNullException when querying with nullable byte, short, or enum parameters
+
+Problem was that in some cases of column == variable, compiler wraps the column expression into a Convert. As later stage in the query pipeline we try to recognize the pattern where column == null_valued_parameter and convert it to IsNull(column). However, we were not detecting it properly for columns wrapped in Convert. Fix is to unwrap converts in the pattern detection logic. We don't really need the information about the converted type, since the result expression is either the original (we didn't find the right pattern) or IsNull(column), that returns save boolean value regardless of the cast. CR: AndrewUpdates to relational type mapping
+
+This change uses default type mappings in query and adds code to set Size appropriately on string and binary parameters for SQL Server.Add a workaround for SQL Client bug involving parameters of type date and time
+
+Fixes #8894Use `is not` syntax where appropriate and remove unnecessary parentheses (#13323)
+Code performance fixes (#12956)
+
+* RCS1080: Use 'Count/Length' property instead of 'Any' method
+
+* RCS1077: Optimize LINQ method call
+
+* RCS1235: Optimize method callAllow `.exe` files to be used as IL binary modules (#7281)
+
+Fix for #6741 Allow .exe files to be used as binary modules. Basically anywhere a .dll could be used with modules, you can now use a .exe file. Also did a little clean up, replacing constant strings with the StringLiteral values instead.First round of workflow cleanup (#4777)
+
+This round of cleanup focuses on the following areas
+- Tab completion code
+- InitialSessionState
+- Compiler/MiscOps
+- Utils/SessionStateFunctionAPIs
+Changes in the rest affected files are mainly some corresponding changes due to the cleanup work in the above areas.Merge pull request #927 from PowerShell/andschwa/sync-sd
+
+Update files from Source Depot changeset [SD:700586]Fix #2073: Ensure the startOffsetVar actually appears in the expected instruction, not somewhere else.Merge pull request #2069 from icsharpcode/remove-redundant-statement-transform
+
+Remove redundant StatementTransform pass.Remove the hack where IndexRangeTransform looks at instructions prior to startPos.
+
+Instead we now perform a partial transformation which we can then later extend.
+This means we no longer need to rely on the previous instruction (prior to startPos) being already inlined.
+This way the IndexRangeTransform also works without the duplicate StatementTransform pass.Merge pull request #1986 from icsharpcode/ranges
+
+Implement support for C# 8.0 indexing and slices (Ranges)Query: Remove public setters from customer expression properties
+
+Resolves #19192
+
+Changes
+- Only server side query expression are in place updated using private setters, public methods
+- Moved to Update method pattern in certain cases
+- TableExpressionBase still has internal set which will be fixed in #17337
+- ShapedQueryExpression.VisitChildren throws now. Since ShapedQuery contains query expression (server side) and shaper expression (client side), it is unlikely that a visitor needs to visit both components. Hence we force visitor to decide which component to visit. This improves perf as we wouldn't go into client side shaper when updating something in sql treeQuery: DRY ReplacingExpressionVisitorReimplement entity equality
+
+New implementation of entity equality rewriter, which follows exact
+entity (and anonymous) from roots to the comparison expression, for
+more precise rewriting.
+
+Closes #15588[Query] Make ShapedQueryExpression.ShaperExpression lambda body only
+The LambdaExpression.Parameters were not being used anywayQuery: Bugfixes (#15590)
+
+- Add string.Concat translator
+- Add explicit cast for convert to object nodes
+- Ignore ToOrderedQueryable method callFix conflicting shorthand switch `-s` (sta) for pwsh (#13262)
+Change exe '-inputformat' switch prefix '-in' to '-inp' to fix conflict with '-interactive' (#13205)
+Fix conflicting shorthand switch `-w` for pwsh (#12945)
+Code redundancy fixes (#12916)
+
+* Autofix `RCS1036: Remove redundant empty line`
+
+* Autofix `RCS1037: Remove trailing white-space`
+
+* Autofix `RCS1033: Remove redundant boolean literal`
+
+* Autofix: `RCS1038: Remove empty statement`
+
+* Autofix `RCS1041: Remove empty initializer`
+
+* Autofix `RCS1097: Remove redundant 'ToString' call
+
+* Autofix: `RCS1420: Operator is unnecessary`Support notification on `pwsh` startup when a new release is available (#10689)
+pwsh -Login support (#10050)
+Enable `-sta` and `-mta` switches for pwsh (#10061)
+Move consts and methods to single CharExtensions class (#9992)
+Merge pull request #9528 from SteveL-MSFT/login-shell
+
+Add support for `-l` to pwsh so that it is compatible with POSIX shell expectations[feature] Add -CustomPipeName to `pwsh` and `Enter-PSHostProcess` (#8889)
+
+This allows a user to start PowerShell up with the name of the named pipe that is used for cross process communication (I.e. Enter-PSHostProcess).Remove empty lines; correct space on closing square brackets, negative signs, and generic brackets (#8508)
+Enable `Open Here` context menu on Windows to work with root of a drive (#8287)
+
+support being started by Windows Shell (Open Here) where a trailing slash followed by a quote is handled incorrectlyHonor `-OutputFormat` if specified in noninteractive, redirected, encoded command used with pwsh (#8115)
+
+[Breaking Change]
+
+There is specific code that sets the `OutputFormat` to xml if pwsh is run non-interactive, with redirected output, and the command was encoded.  However, it ignored whether OutputFormat was specified.  Fix is to track whether `-OutputFormat` was used and respect that value rather than defaulting to xml.
+
+Fix https://github.com/PowerShell/PowerShell/issues/5912Make sure that SettingFile arg is parsed before we load the settings (#7449)
+
+Make sure that SettingFile arg is parsed before we load the settings
+
+- Add ability to parse some setting before console host is created
+- Trigger the Parse before the console host is created
+- disable snapin loading from loading setting before this point
+- re-enable mac logging tests.
+
+Also, fix the following Travis-ci issues:
+
+- make sure the Linux and macOS caches are separate to reduce the size
+- update the macOS image to the closest image as used by the official build system (equivalent to VSTS hosted mac builds)Add '-WorkingDirectory' parameter to pwsh (#6612)
+
+Add `-WorkingDirectory` parameter to `pwsh` to allow starting in right working directory.Add '-settingsfile' to 'pwsh' to support loading a custom powershell config file. (#5920)
+
+Support loading a custom `powershell.config.json` file via the command-line for use in testing.
+This change supports replacing the default `powershell.config.json` file that's usually loaded from the `PSHome` directory with a custom version file.
+
+The primary use-cases for this command-line option are as follows:
+1. Allow the CI system to disable settings that impact test run times; such as disabling syslog usage on Linux and MacOS
+2. Support testing of syslog and os_log without interfering with normal PowerShell operations during test runs via launching an instance with custom log settings.Return better error for 'pwsh -WindowStyle' on unsupported platforms. (#5975)
+Show usage (short) help if command line parameter is wrong (#5780)
+
+Show usage (short) help if command line parameter is wrong
+Show extended (full) help message with pwsh -h
+Split Help message on Usage and ExtendedMerge pull request #4995 from SteveL-MSFT/remove-apartmentstate
+
+* wrapped STA code sections in `#if STAMODE` for potential future use
+removed -importsystemmodules switch from powershell.exe and related code
+removed -consolefile parameter from powershell.exe and related code
+
+* removed font and codepage handling code that is only applicable to Windows PowerShell
+replaced LengthInBufferCells() method with Unicode adapted code from PSReadline
+
+* removed `#if CORECLR` statements merging code base
+
+* [feature]
+removed code to show a GUI prompt for credentials as PSCore6 prompts in console
+
+* Remove unncessary method 'LengthInBufferCellsFE'fix `powershell -version` and help (#4958)
+
+ PowerShell -v  behavior updated to align with other tools like git, curl, and bash where args after  -v  are silently ignored.
+
+Built-in help updated to reflect changes we've made to the console host in PSCore6 removing unsupported parameters.
+
+* [feature]
+removed test that is no longer valid due to change in -version behavior to return error
+
+* [feature]
+fixed `-v X` so that it errors out correctly with proper exit code
+updated test to catch this
+
+* [feature]
+address PR feedback
+
+* [feature]
+make -v have behavior consistent with other tools like git, curl, bash where args after -v are ignored
+removed duplicate but not exactly help text that wasn't being used in the resource file
+removed parameters from help that are not support in PSCore6Write an error for powershell -version 2 (#4931)
+
+Write an error for powershell -version <any value>Merge pull request #4573 from SteveL-MSFT/console-no
+
+* Make invalid arg to -File consistent with -Command
+Improve error message if ambiguous arg is passed to -File
+
+* Update powershell console exit codes to match Unix standards
+
+* Enable -WindowStyle to workChange positional parameter for powershell.exe from -Command to -File (#4019)
+
+Previously powershell.exe treated unknown arguments as a command line to execute. To align with POSIX so that things like shebang scripts work correctly, we are changing powershell.exe so that it treats unknown arguments (aka positional argument) as a file. This means that `powershell foo` will now attempt to use `foo` as a PowerShell script whereas previously `foo` would be treated as a command to execute. This doesn't affect existing usage of either -File nor -Command. Fixed tests that didn't explicitly use -Command parameter.Accept `-i` for an interactive shell (#3558)
+
+On Unix, it is a convention for shells to accept `-i` for an interactive shell and many
+tools expect this behavior (`script` for example, and when setting powershell as the
+default shell) and calls the shell with the `-i` switch.  This change is breaking in
+that `-i` previously could be used as short hand to match `-inputformat` which now will
+need to be `-in`.Implement -version parameter in console host (address part of https:/… (#3115)
+
+* Implement -version parameter in console host (address part of https://github.com/PowerShell/PowerShell/issues/1084)
+
+This does not support providing a specific version to run, but
+like most other *nix commands, -version will now return the version
+of the PowerShell Engine. 'powershell' is prepended to the output to
+match other *nix commands. We are using gitcommitid which includes more
+info about the build.Fix for PowerShell SSH remoting with recent Win32-OpenSSH change. (#2538)
+
+* Fix for Win32-OpenSSH break when hosting PowerShell in server mode as an SSH subsystem.
+
+* Refactored to use null PSHostUserInterface implementation
+
+* Implemented code review commentsSpelling comments (#2066)
+
+* spelling: comments in src/Microsoft.Management.Infrastructure.CimCmdlets
+
+* spelling: comments in src/Microsoft.PackageManagement.ArchiverProviders
+
+* spelling: comments in src/Microsoft.PackageManagement.CoreProviders
+
+* spelling: comments in src/Microsoft.PackageManagement.MetaProvider.PowerShell
+
+* spelling: comments in src/Microsoft.PackageManagement.MsiProvider
+
+* spelling: comments in src/Microsoft.PackageManagement.MsuProvider
+
+* spelling: comments in src/Microsoft.PackageManagement.NuGetProvider
+
+* spelling: comments in src/Microsoft.PackageManagement.PackageSourceListProvider
+
+* spelling: comments in src/Microsoft.PackageManagement
+
+* spelling: comments in src/Microsoft.PowerShell.Activities
+
+* spelling: comments in src/Microsoft.PowerShell.Commands.Diagnostics
+
+* spelling: comments in src/Microsoft.PowerShell.Commands.Management
+
+* spelling: comments in src/Microsoft.PowerShell.Commands.Utility
+
+* spelling: comments in src/Microsoft.PowerShell.ConsoleHost
+
+* spelling: comments in src/Microsoft.PowerShell.Core.Activities
+
+* spelling: comments in src/Microsoft.PowerShell.CoreCLR.AssemblyLoadContext
+
+* spelling: comments in src/Microsoft.PowerShell.CoreCLR.Eventing
+
+* spelling: comments in src/Microsoft.PowerShell.Diagnostics.Activities
+
+* spelling: comments in src/Microsoft.PowerShell.GraphicalHost
+
+* spelling: comments in src/Microsoft.PowerShell.LocalAccounts
+
+* spelling: comments in src/Microsoft.PowerShell.Management.Activities
+
+* spelling: comments in src/Microsoft.PowerShell.PSReadLine
+
+* spelling: comments in src/Microsoft.PowerShell.PackageManagement
+
+* spelling: comments in src/Microsoft.PowerShell.ScheduledJob
+
+* spelling: comments in src/Microsoft.PowerShell.Security.Activities
+
+* spelling: comments in src/Microsoft.PowerShell.Security
+
+* spelling: comments in src/Microsoft.PowerShell.Utility.Activities
+
+* spelling: comments in src/Microsoft.PowerShell.Workflow.ServiceCore
+
+* spelling: comments in src/Microsoft.WSMan.Management.Activities
+
+* spelling: comments in src/Modules
+
+* spelling: comments in src/Schemas
+
+* spelling: comments in src/libpsl-native
+
+* spelling: comments in src/powershell-native
+
+* spelling: comments in build.psm1
+
+* spelling: comments in src/System.Management.Automation/CoreCLR
+
+* spelling: comments in src/System.Management.Automation/DscSupport
+
+* spelling: comments in src/System.Management.Automation/cimSupport
+
+* spelling: comments in src/System.Management.Automation/commands
+
+* spelling: comments in src/System.Management.Automation/engine/ModulesMerge pull request #1787 from PaulHigin/WorkingA
+
+PowerShell remoting over SSH.Merge pull request #1246 from PowerShell/andschwa/guard-rawui
+
+Guard RawUI when TTY is non-existentMerge pull request #1171 from PowerShell/vors/sd-717473
+
+Integrate changes from SD between [SD:715912] and [SD:717473]Merge pull request #1018 from PowerShell/andschwa/import-sd
+
+Merge SD changesMerge pull request #939 from PowerShell/andschwa/consolehost
+
+Converge the console hostsMake approved features non-experimental (#11303)
+Cleanup style issues in Compiler.cs (#10368)
+Implement Null Coalescing and Null Coalescing assignment operators (#10636)
+Engine: Make some minor cleanup changes (#6609)
+
+- Remove the calls to `GetTypeInfo()` in the generated `.resx` binding C# binding code (change in the tool `ResGen`).
+- Remove the unused methods in `SessionState.cs`.
+- Remove the calls to `GetTypeInfo()` from `Compiler.cs` and other files in `engine\runtime`.
+- Fix typos in `VariableAnalysis.cs` and `ClassOps.cs`.
+- Minor perf improvement in `MutableTuple.cs` by using indexing instead of linq extension method `last()`.[breaking-change] Fix range operator (#5732)
+
+Breaking-change:  "0".."9" returns [char] previously in PowerShell Core (6.0.0, 6.0.1), now it returns [int]. After the change, the behavior is the same as in Windows PowerShell.Add char range overload to DotDot operator (#5026)
+Use 'is' operator instead of 'as' operator (#13287)
+Style:  Replace String.IsNullOrEmpty with string.IsNullOrEmpty (#8557)
+Removed automatically adding year to copyright message (#3804)
+
+Removed automatically adding year to copyright message for file generated by New-ModuleManifest and New-PSRoleCapabilityFile.Implement RoleDefinitions RoleCapabilityFiles keyword (#3067)
+
+* Changes to implement remote endpoint RoleDefinition RoleCapabilityFiles keyword
+* Fixed spelling error.  Added back missing resource string
+* Updated tests from CR comments
+* Simplified error tests per Code Review
+* Test change from Code ReviewRun CodeFormatter for WSMan.Management (#9400)
+Style: Use the type alias 'string' instead of 'String' in places that are appropriate (#8573)
+Merge pull request #2313 from jsoref/spelling-public
+
+spelling: public identifiers in src/Microsoft.WSMan.ManagementMerge pull request #1367 from PowerShell/vors/3-dlls
+
+Bring .cs code for CimCmdlets, WSMan.Management and WSMan.Runtime dllsParameterBinderBase: Fixing incorrect index in format string (#12630)
+Remove comments after closing brackets (#8344)
+Consolidation of all Windows PowerShell work ported to PSCore6 (#8257)
+
+Consolidation of all Windows PowerShell work ported to PSCore6
+
+* Added ps1 file import restriction.  Refactored InvokeLanguageModeTestingSupportCmdlet to HelpersSecurity module
+* JEA loop back fix.  Debugger running commands in CL mode.
+* Support for new AMSI codes.  Changed to use AMSI buffer API.  Unhandled exception fix.
+* Fixes for module bugs while running in ConstrainedLanguage mode
+* Untrusted input tracking work
+* Configuration keyword bug fix, PSRP protocol version check for reconstruct reconnect, Sharing InitialSessionState in runspace pool.
+* Restricted remote session in UMCI, Applocker detection collision, Help command exposing functions, Null reference exception fix.
+* Added mitigation for debugger function exposureCleanup '#if CORE' ParameterBinderBase.cs (#4427)
+ILReader: handle implicit O->Ref conversionsEnsure that StLoc.Value.ResultType == StLoc.Variable.StackType
+
+This introduce a new explicit conversion (StartGCTracking) when converting unmanaged pointers to managed references.Refresh and enable the `ComInterop` code in PowerShell (#13304)
+Change 'Int32' to 'int' for simple references in variable declaration (#8518)
+Style: Use the shorthand of the `nullable` type (#8501)
+Clean up 'GetTypeInfo()' calls in engine folder (#6634)
+
+'GetTypeInfo()' were added when porting PowerShell to early version of .NET Core (prior .NET Core 1.0).
+Most properties and methods in 'System.Type' were missing at that time. Now the call is not needed anymore and should be removed.Replace StringComparision.CurrentCulture with StringComparision.Ordinal (#8068)
+Remove DCOM support from *-Computer cmdlets (#5277)
+
+Since DCOM is not supported in corefx there was a great deal of dead code in the computer cmdlets.
+This PR removes all vestiges of DCOM support from:
+
+- Rename-Computer
+- Restart-Computer
+- Stop-Computer
+
+removing about 4500 lines of dead code. Also, tests are updated to provide more complete coverage.
+I also removed test-connection completely to make way for @iSazonov upcoming PR to improve coverage in tests, I created some test hook code which will test the cmdlet code without actually calling the WMI method to restart/rename/stop the systemDev/stevenki/port analyzers and system xaml (#517)
+
+* moving analyzers to targets files
+
+* Merged PR 596: Add analyzers for System.Xaml
+
+I started with System.Xaml, since I'm planning on moving some of these changes to GitHub.
+
+Currently only enabled for System.Xaml project. Below is the logic behind how we should suppress rules:
+
+1. Any rules we want suppressed globally, get suppressed in CodeAnaysis.ruleset by setting Action to "None"
+2. Any rules that are enabled but require certain suppressions, should be suppressed in GlobalSuppressions.cs
+3. Any suppressions that we want to fix, but won't for the 3.0 release due to compat concerns, should be suppressed inline.
+
+Currently globally suppressed rules:
+[CA1307](https://docs.microsoft.com/en-us/visualstudio/code-quality/ca1307-specify-stringcomparison?view=vs-2017)
+[CA1305](https://docs.microsoft.com/en-us/visualstudio/code-quality/ca1305-specify-iformatprovider?view=vs-2017)
+[CA2235](https://docs.microsoft.com/en-us/visualstudio/code-quality/ca2235-mark-all-non-serializable-fields?view=vs-2017)
+[CA1822](https://docs.microsoft.com/en-us/visualstudio/code-quality/ca1822-mark-members-as-static?view=vs-2017)
+[CA1801](https://docs.microsoft.com/en-us/visualstudio/code-quality/ca1801-review-unused-parameters?view=vs-2017)
+[CA1812](https://docs.microsoft.com/en-us/visualstudio/code-quality/ca1812-avoid-uninstantiated-internal-classes?view=vs-2017)
+[CA1304](https://docs.microsoft.com/en-us/visualstudio/code-quality/ca1304-specify-cultureinfo?view=vs-2017)
+
+Also some changes to help make building out of VS possible. While this still doesn't work, we can now at least do a nuget restore.
+
+Added a .editorconfig file that matches the CoreFX one.
+
+* adding suppressions and fixing version.details.xml
+
+* removing accidental comment
+
+* ensuring that throw argument null exception before calling ValidateGetter/Setterreverting completing of PR (#516)
+Merge pull request #509 from dotnet/dev/stevenbrix/enableAnalyzersAndCodeCleanup
+
+Dev/stevenbrix/enable analyzers and code cleanupOptimize usings (#103)
+
+* Optimize usings
+
+* Post code review fixesMerge pull request #2 from dotnet/dev/stevenki/system_xaml
+
+initial commit of system.xaml
+
+
+closes #3 removed RunspaceConfiguration support (#4942)
+
+For PSCore 6, we are only supporting InitialSessionState. The RunspaceConfiguration APIs were already made internal. This PR removes all the code related to RunspaceConfiguration. This also means that some public APIs have changed. Was deciding between leaving the RunspaceConfiguration parameters and throwing Unsupported, but thought it was better to have it a compile-time error. This should simplify the code base.
+Merge pull request #1937 from icsharpcode/pdbgen-enhancements
+
+PDB Generator EnhancementsDo not convert simple LINQ method calls to LINQ expressions. Closes #1501.Merge pull request #1405 from icsharpcode/combine-exitpoints-in-lambdas
+
+Combine exitpoints in lambdasDo not convert extension method syntax to LINQ, if the null conditional operator is used on the target, as this introduces a syntax error.Fix #437: Decompilation of query expression loses material parenthesesAdd support for query continuations.Add support for decompiling query expressions.Reformat code:lipstick: Standardize naming of IServiceCollection EF extension method class
+Previously called EntityServiceCollectionExtensions but we don't use an EF prefix on other extension method classes (QueryableExtensions, TaskExtentions).
+Duplicate type names won't matter for extension methods... unless you had a conflict on extension method signature... which is then going to cause an issue when you try to call it anywaysRename EntityFramework to EntityFramework.CoreAdding WithCurrentCulture extension method
+
+Part of #374Adds async versions of Northwind query tests. Fixes a number of outstanding issues in async result operator handling.Rename to EntityFramework.* and bump version to 7.0.0-*Adds more async extension methods
+
+Fix #256Adding some more foundational query stuff.Add support for C# 8 switch expressions.#1499: Add missing required parentheses around ref expressions.Fix #1156: Treat float, double and decimal < 0 as unary expressions in InsertParenthesesVisitorAdd -Resume Feature to Web Cmdlets (#6447)
+
+Fixes #5964
+
+Adds -Resume switch to Invoke-WebRequest and Invoke-RestMethod
+
+-Resume requires -OutFile
+
+Enables the ability to resume downloading a partially or incompletely downloaded file.
+
+File Size is the only indicator of local and remote file parity.
+
+If the local file is smaller than the remote file and the remote endpoint supports resume, the local file will be appended with the remaining bytes.
+
+If the local file is larger than the remote file, the local file will be overwritten
+
+If the remote server does not support resume, the local file will be overwritten
+
+If the local file is the same size as the remote file, the remote endpoint will return a 416 status code. This response is special-cased as a success in this instance. The local file remains untouched and it is assumed the file was already successfully downloaded previously.
+
+If the local file does not exist it will be created and the entire remote file will be requested.
+
+Added tests for all code new code paths (I'm pretty sure anyway)
+
+Added /Resume Controller to WebListener
+
+Documented /Resume Controller
+
+Updated .spelling to reflect terms in WebListener docs
+
+Note: I had to change the way GetResponse() tracks the current URI as we now have 3 places where the call is taking place. I don't foresee this causing any regressions. This area needs some refactoring. especially if we want to implement a retry mechanismAdd Simplified multipart/form-data Support to Web Cmdlets Through -Form Parameter (#5972)
+
+- Adds -Form Parameter to Invoke-WebRequest and Invoke-RestMethod.
+- Form Accepts any IDictionary.
+- Keys are used as multipart/form-data field names (PSObject unwrapped and ConvertTo<String>(Object)).
+- FileInfo values are added as StreamContent with application/octet-stream content type and the FileInfo.Name as the file name.
+- Strings are treated as StringContent.
+- Singe values are converted to string with ConvertTo<String>(Object) and treated as StringContent
+- Top level collections are enumerated and converted as above. Nested collections are treated as a single value and converted accordingly.
+- Form is mutually exclusive with -Body and -InFile.
+- Per PowerShell-Committee decision, -Form makes no assumptions about the HTTP method used. It can theoretically be used with any method. User will need to manually supply -Method POST to post the form.
+- ContentType and content related headers supplied to -Headers will be ignored/cleared as MultipartFormDataContent requires control of these headers.Add error on Legacy Credential over non-HTTPS for Web Cmdlets (#5402)
+
+- Add an error when a user tries to use `-Credential` (legacy usage without `-Authentication`) or `-UseDefaultCredentials` over a non-HTTPS URI
+- User can bypass error with `-AllowUnencryptedAuthentication`
+- `-UseDefaultCredentials` can only be reliably tested on Windows as support on other platforms depends on a Kerberos infrastructure. 
+- Add `/Auth/` tests to WebListener for challenge authentication Basic, Negotiate, and NTLM
+
+Incidentally, this increases test coverage for the web cmdlets as `-Credential` and `-UseDefaultCredentials` were not being tested.Add -AsHashtable switch to ConvertFrom-Json for issue #3623 (#5043)
+
+Address #3623.
+
+Implementation symmetric to traditional code path that returns a PSCustomObject. Code is shared on the top level but 2 low level methods were difficult to share, therefore 2 separate but similar methods were created for HashTables.
+All existing tests related to this change were adapted to also test against this new switch and were slightly improved.
+
+-AsHashtable is an existing pattern used in Group-ObjectAdd Authentication Parameter to Web Cmdlets for Basic and OAuth (#5052)
+
+Closes #4274
+
+Adds an -Authentication parameter to Invoke-RestMethod and Invoke-WebRequest
+Adds an -Token parameter to Invoke-RestMethod and Invoke-WebRequest
+Adds an -AllowUnencryptedAuthentication parameter to Invoke-RestMethod and Invoke-WebRequest
+Adds tests for various -Authorization uses
+-Authentication Parameter has 3 options: Basic, OAuth, and Bearer
+Basic requires -Credential and provides RFC-7617 Basic Authorization credentials to the remote server
+OAuth and Bearer require the -Token which is a SecureString containing the bearer token to send to the remote server
+If any authentication is provided for any transport scheme other than HTTPS, the request will result in an error. A user may use the -AllowUnencryptedAuthentication switch to bypass this behavior and send their secrets unencrypted at their own risk.
+-Authentication does not work with -UseDefaultCredentials and will result in an error.
+The existing behavior with -Credential is left untouched. When not supplying -Authentication, A user will not receive an error when using -Credential over unencrypted connections.
+
+Code design choice is meant to accommodate more Authentication types in the future.
+
+Documentation Needed
+
+The 3 new parameters will need to be added to the Invoke-RestMethod and Invoke-WebRequest documentation along with examples. Syntax will need to be updated.Merge pull request #1468 from PowerShell/frangom/webcmdlets
+
+Port Invoke-WebRequest/RestMethod to OPScleanup (#4445)
+scope validation refactor (#4199)
+
+* first stab at scope validation rework to be more consistent with other validators
+
+* cleanup
+
+* make resource validator more customizable
+
+* rework validated request to contain the resource validation result
+
+* use values of scopes on resource validation result, rather than use Resource object model values
+
+* add validated scopes class concept to resource validation result
+
+* allow scope validation result to match multiple api resources
+
+* get everything to recompile w/ new resources model
+
+* bug fixes around new scope vs api resource programming model
+
+* get all tests back to working
+
+* make local api a scope in config (moved from being an api resource)
+
+* fix NRE in device flow
+
+* update ef storage for new scope models
+
+* update for new UI/scopes
+
+* get aspId project updated w/ new scopes
+
+* commnets
+
+* add comment
+
+* add comments from code review
+
+* cleanup and simplification
+
+* comments from code review
+
+* update profile service to accept validation resources; add parse API to resource validator
+
+* update where requested scopes used
+
+* first example of a custom resource validator
+
+* resource and store renames; cleanup
+
+* promote Client and ResourceValidationResult to first class properties on the interaction service's authorize context
+
+* extension methods and more cleanup
+
+* rework user info response generator to work better with the new resource validaton result
+
+* update ef for new resource store
+
+* update hosts for new resources
+
+* update EF migrations
+
+* udpaet AspId migrations
+
+* updated comments
+
+* rework api and scope names
+
+* downgrade test sdk to get code coverage
+
+* comment
+
+* remove unused sln files
+
+* empty
+
+* empty
+
+* add tests to validate correct audience and scope in tokens
+
+Co-authored-by: Dominick Baier <dbaier@leastprivilege.com>Bug Fix #4036 - missing crv value when passing JsonWebKey to AddSigni… (#4037)
+
+* Bug Fix #4036 - missing crv value when passing JsonWebKey to AddSigningCredentials
+
+* Change validation from crv value to AddSigningCredential
+
+* Changing tests and fixing validationsfixed a bug with signing algorithms list in discoMTLS Update (#3962)
+
+* a client cert auth handler
+
+* remove workspace.xml
+
+* exclude .idea folder when cleaning
+
+* ignore workspace xml
+
+* add client cert to MTLS sample
+
+* add config for client cert authn
+
+* add test cert
+
+* update client config for new cert
+
+* Move cnf generation to extension method
+
+* add mtls domain support to discovery
+
+* update client to use SocketHandler
+
+* rename MTLS middleware
+
+* bug in disco
+
+* add comments
+
+* cleanup mtls middleware
+
+* cleanup
+
+* cleanup client
+
+* add feature to set client cert cnf claim regardless of authentication method
+
+* update ignore file
+
+* remove rider files
+
+* more rider files
+
+* use constants for path manipulation
+
+* set https fixedV4: Multiple signing keys (#3892)
+
+* update store and key material service
+
+* add signing algorithm to Token
+
+* added property to Client to specify signing algorithm
+
+* propagate Client.IdentityTokenSigningAlgorithm
+
+* Update client to test feature
+
+* make tokens algorithm property a list
+
+* also update Client property
+
+* switched over to list of algorithms instead of single one
+
+* added algo list to resource
+
+* add logic to find matching signing algorithms for access tokens
+
+* cleanup
+
+* add support for multiple signing algorithms in discovery doc
+
+* refactor selection algorithm and add tests
+
+* move property to ApiResource
+
+* add EF stuff (does not work)
+
+* add converter for allowed signing algs
+
+* add .Local solution for Core
+
+* add quick build
+
+* updates from review
+
+Co-authored-by: Brock Allen <brockallen@gmail.com>Switch to ASP.NET Core 3 (#3609)
+
+* updated storage
+
+* update version
+
+* Update azure-pipelines.yml for Azure Pipelines
+
+* install right SDK for Linux
+
+* start modifying IdentityServer itself
+
+* compiles on 3
+
+* update to new hosting model
+
+* added endpoint info to request logger
+
+* started working on EF
+
+* remove extra line
+
+* Cherry Pick request object PR
+
+* fix cherry pick
+
+* Set client id in user login events from resource owner password validator (#3442)
+
+(cherry picked from commit 6ef66a1f3e41bbdd25f2e061f23bde023543952d)
+
+* Easier Authorization Code extensibility (#3463)
+
+* separate code creation and storage
+
+* added properties to AuthorizationCode
+
+* updated dictionary
+
+(cherry picked from commit f7362df5f8ffb449ff90f7478333d3996f2cf1be)
+
+* Easier support for impersonating clients (#3464)
+
+* add new property to ValidatedTokenRequest
+
+* check for impersonation flag in default claims service
+
+* add test
+
+* requested changes
+
+(cherry picked from commit 94ee1947c721723e8aa8272c35335f4819546ea1)
+
+* 3445 refresh token logs (#3468)
+
+* #3445 Modify token revocation logs to more clearly indicate behavior
+
+* #3445 Modify log to log both client id's
+
+* #3445 Test revoke of another client's refresh token should not skipped but still return success
+
+* #3445 Revoking another client's access token should return success but not revoke the token
+
+(cherry picked from commit 0038e718bb456d2fe33daa7bdb82673e501fabea)
+
+* update to .NET Core Preview 7
+
+* move Storage back to netstandard
+
+* workaround for strongly typed HttpClientFactory problem
+
+* add todo
+
+* temporarily disable tests
+
+* fix artifacts directory
+
+* csproj cleanup
+
+* consolidate strong naming keys
+
+* migrated EF.Storage - tests don't work - skipped for now.
+
+* more fixes for tests required
+
+* updated EF
+
+* update AspId
+
+* install right SDK for CI
+
+* clean up
+
+* ensure SDK version for MinVer is installed (#3490)
+
+* updgrade bullseye
+
+* change middleware order
+
+* CORS validation handling normalized URIs (#3478)
+
+* Added failing tests
+
+* Changed CORS origin check to allow for normalized ports
+
+(cherry picked from commit 80d7a395184b60f6a68ef1538bb714b4e7854ffe)
+
+* fix JS for automatic signout redirect (#3491)
+
+* fix JS for automatic signout redirect to wait until iframe is done loading #3475
+
+* revert back to the load event for redirect after signout
+
+(cherry picked from commit 13430dc0093b9287cb72dee6302d238cca243c5e)
+
+* remove extra out of index msg template that cause exception during logging (#3494)
+
+To resolve https://github.com/IdentityServer/IdentityServer4/issues/3482
+
+(cherry picked from commit 1a7fb8e045dcf53cfe93ac2c68fc084c6dc44f78)
+
+* Fix/3431 (#3467)
+
+* Protected data members should be properties, not fields (CA1051).
+
+* Using structured logging messages to avoid unnecessary string allocations at runtime.
+
+* Restricting refresh_token's sliding lifetime when creating new refresh_tokens. Adding warning about incorrectly configured clients.
+
+* Adding test.
+
+(cherry picked from commit 3752f76b5328fc3dbfd27bc623389aaf0983f26f)
+
+* set Json.Net version to 12.0.1
+
+* remove IdentityServerPrincipal
+
+* Update add_apis.rst (#3508)
+
+(cherry picked from commit c719bfce5d3e618caf69f07ad19312cb94bd2e5e)
+
+* Update request_object.rst (#3509)
+
+(cherry picked from commit 7a50dcc2f650f396757425fe9e368c00a38df3e3)
+
+* update build scripts
+
+* Add support for additional signing algorithms (#3511)
+
+* allow specifying signing algorithm on all helper methods
+
+* add support for variable length c_hash and at_hash
+
+* add EC
+
+* add StateHash property to authorization code
+
+* add s_hash support
+
+* added test for s_hash for code flow
+
+* cleanup crypto extensions
+
+* consolidate StateHash and StateToHash
+
+* Move to IdentityModel v4
+
+* update tests
+
+* update IdM version
+
+* work on EF tests
+
+* move context accessor access (#3517)
+
+(cherry picked from commit 835f5193bcf2a56e58f0c15b64ad7933366148b8)
+
+* Set typ header for access tokens (#3513)
+
+* set typ header for access tokens (and enforce in API)
+
+* add jwt type to options
+
+* update token validator to use jwt type
+
+* adjust testrs
+
+* adjust tests
+
+* clean up DefaultCustomTokenValidator
+
+* exclude vs directory from clean script
+
+* update migrations
+
+* skip one more test where ef in-mem provider seems broken
+
+* update connection strings and host for 3.0 style
+
+* update aspnet identity host for 3.0 style
+
+* add docs for jwt access token type setting
+
+* add support for ECDSA keys in disovery
+
+* add helper for ECDSA
+
+* update clients to 3.0
+
+* add Json.Net to host
+
+* sponsors update for july
+
+(cherry picked from commit 3c109dccff098f60afd8bc3c2fa83c007550de55)
+
+* Update readme.md (#3525)
+
+fix  discription for hybrid authentication
+
+(cherry picked from commit cfd2d5d4ec020f4e6dcddbea8c6fbdd6268edea3)
+
+* make EC work by hard-coding crv (for now)
+
+* Update README.md
+
+(cherry picked from commit 56eaba86deb8709f16604dd3188a7c4bfe83e758)
+
+* update to netcore preview8
+
+* Update specs.rst (#3556)
+
+(cherry picked from commit ca5e557f3ca7d2a85e888e1ff1a94e82b4aed16e)
+
+* Ecdsa curve handling (#3534)
+
+* Handling for crv values
+
+* Added handling for curve mismatch
+
+* Set id_token_signing_alg_values_supported based on signing credential
+
+* Used CryptoHelper.GetCrvValueFromCurve to use constants
+
+* update IdentityModel
+
+* cleanup ECDSA code
+
+* update samples
+
+* Add convenience overloads for setting signing keys
+
+(cherry picked from commit f8a7c51b253513ed6c4c22ec301c8c425bdd44a2)
+
+* Support specific signing algorithms per validation key (#3561)
+
+* Add convenience overloads for setting signing keys
+
+* add indirection to signing keys to support specific algorithms per key
+
+* added null checks around getting the signing credential + cleanup
+
+* Added test for validation keys with different algorithms (#3532) (#3562)
+
+* changed ClaimValueTypes.Integer to Integer64 (#3563)
+
+* Fix ConsentGrantedEvent xml document (#3540)
+
+(cherry picked from commit 28b971d04c389dfe7724df6df94faddc2b515339)
+
+* Update 8_aspnet_identity.rst (#3476)
+
+Remove "the a"
+
+(cherry picked from commit 00fb68612b86e8ca0b8db43f09a8b5f75a5217cd)
+
+* move logging before removal so the PromptMode is included in the logging (#3523)
+
+(cherry picked from commit 0c097eef57e98aec36eb34727acea2c998415687)
+
+* Fixed null reference (#3565)
+
+* cleanup
+
+* cleanup crypto
+
+* update dependency
+
+* update serilog
+
+* add comment for azure diagnostics
+
+* update IdentityModel
+
+* Re-factor logic to turn Secrets into SecurityKeys (#3584)
+
+* added extension method to turn secret collection to SecurityKeys
+
+* changed JwtRequestValidator and PrivateKeyJwtValidator to use new extension method
+
+* update host logging
+
+* add return code for host
+
+* update to netcore preview9
+
+* update samples
+
+* update AzDO
+
+* Fixed Typo (#3595)
+
+dynamical to ydynamically
+
+(cherry picked from commit 86da6120c0dcd069907b9f2d85c7092add148ed1)
+
+* Updated tests for EF Core 3 (#3582)
+
+* Removed usage of in-memory database until EF Core 3 is ready
+
+* Made CORS service pull full client record into memory until EF Core 3 is ready
+
+* Added integration tests for token cleanup
+
+* reenable in-mem tests
+
+* added package icon
+
+* re-enabled tests
+
+* move cors service to EF project
+
+* split clean scripts
+
+* moved unit tests
+
+* rework token cleanup service
+
+* add expiration index
+
+* updated migrations
+
+* update automapper
+
+* update source link
+
+* reverted to icon url
+
+* identify the builds for each solution in the logs (#3586)
+
+* key management samples (#3606)
+
+(cherry picked from commit a401ec25362effcb80c8b809b5b0746124b38d1e)add flag to enable jqt request_uri for authorize endpointAdd support for signed authorize requests (#3241)
+
+* firs stab at request JWT handling at authorize endpoint
+
+* update idm to use constants
+
+* added test for missing client id
+
+* add discovery document support for request objects
+
+* add tests for request object
+
+* add support for JWKs
+
+* add test for JWK
+
+* update langversiokn
+
+* make all parameters explicit
+
+* add test for RSA JWK
+
+* tried to use x509 jwk
+
+* add test for jwk values have precedence over query params
+
+* add NetworkHandler
+
+* get start of jwt request uri http client yak shaving
+
+* use network handler
+
+* add tests for request_uri
+
+* add complex object support for values in request jwtRe-structure to mono repo (#3109)
+
+* re-org core for mono repo
+
+* added storage
+
+* added EF storage
+
+* adding aspid
+
+* remove key
+
+* update package
+
+* first stab at build all
+
+* clean nuget directory in build all
+
+* pass-thru cmd line args
+
+* change appveyor artifact dir
+
+* add appveyor services
+
+* exclude sql server on appveyor unix
+
+* try conditional services
+
+* 2nd try
+
+* 3rd try
+
+* update build script
+
+* disable DB tests on Unix
+
+* update bash scripts
+
+* adding more check for skipping DB tests on non-Windows
+
+* fixing a NRE
+
+* enable in-mem tets for non-Windows
+
+* disable DB tests (temp)
+
+* simplify DB setupmtls changes/updates/cleanupupdate MTLS disco elementupdate disco mtls elementmutual TLS support (#3006)
+
+* first proto of mTLS work
+
+* bug in cnf value
+
+* add mtls client
+
+* get mtls goo into core
+
+* comment
+
+* rename MTLS to MutualTls
+
+* update IdentityModel and use MTLS constantsDevice flow (take 2) (#2760)
+
+* Add constants for device flow grant type
+
+* add constants, endpoint options and discovery
+
+* Add device flow authorize request validator (#2306)
+
+* Added models and interfaces for device authorization request validator
+
+* Added device authorization request validator
+
+* Validator tests (#2391)
+
+* Switched to underscores...
+
+* Reworked Device Authoirzation Request Validator to be more inline with Authorization Request Validator
+
+* Added tests for device authorization request validator
+
+* Added client secret to device flow test client
+
+* Response generator & tests (#2395)
+
+* Added user code generation
+
+* Added device flow options
+
+* Initial implementation of device authorization response generator & stores
+
+* Started response generator unit tests
+
+* Completed device authorization response generator tests
+
+* Store tests
+
+* Device Flow Authorization Endpoint (#2403)
+
+* Started device authorization endpoint
+
+* Made scope parameter optional
+
+* Device authorization endpoint tests. Added events. Added default interval
+
+* Device Flow Response Validator (#2422)
+
+* Initial device code validation
+
+* Device code token request tests
+
+* Initial throttling service. TODO: tests & IDistributedCache dependency
+
+* Added dependency for IDistributedCache. Improved tests
+
+* Throttling service tests and fixes
+
+* Added device code grant to TokenResponseGenerator
+
+* Initial working device flow end to end (#2449)
+
+* Review1 changes (#2694)
+
+* Add built-in support for Confirmation (cnf) (#2440)
+
+* add confirmation object to pipeline
+
+* Add test validator
+
+* fixing NRE
+
+* Switching to string for cnf
+
+* move test validator to test project
+
+* revert client config change
+
+* add try/catch in JSON logic
+
+* added notes that CNF string must be a JSON object
+
+* added test
+
+* Move default payload creation to extension method - closes #2299
+
+* Update README.md
+
+* Scrub id_token_hint from authorize logs
+
+* use constant instead of string
+
+* add refresh_token to scrub list in token request logger
+
+* move is4.csproj to top-level src folder, move host
+
+* fix XML comment
+
+* updating for july
+
+* update ignore
+
+* rework to use IdentityServerUser
+
+* rework folder names
+
+* rework using new storage abstractions
+
+* remove cors service
+
+* make EndSession public #2469
+
+* add null check when unprotecting data #2504
+
+* use GetIdentityServerBasePath instead of Request.PathBase #2446
+
+* reorg default impls and interfaces for consistency
+
+* nuget updates in test projects
+
+* Documentation: Added claimsaction to map website claim (#1) (#2377)
+
+* Make AddScriptCspHeaders and AddStyleCspHeaders public #2513
+
+* Add more strict cache control headers when softer headers are already added by HttpContext.SignInAsync #2514
+
+* add better/more error descriptions to authorize response validator #2218 (#2515)
+
+* add invalid uri scheme validation (#2506)
+
+* add invalid uri scheme validation
+
+* move uri redirect uri prefix validation to client configuration validator
+
+* add option to explicitly configure the cookie auth scheme for interactive users #2489 (#2516)
+
+* Add parameters to IntrospectionRequestValidationResult - #2388 (#2512)
+
+* Update refresh_tokens.rst (#2316)
+
+Adapt text to indicate refresh tokens still expire according to the sliding refresh token timeline.
+
+* "update"
+
+* fix validation bug on config; better config logs for authN schemes
+
+* Remove unused ctor (#2524)
+
+* enable default client validator by default (#2525)
+
+* Fixes 404 (#2527)
+
+* CorsService doesn't handle null for origin #2523
+
+* DistributedCacheStateDataFormatter should handle failed Unprotect workflows #2533
+
+* 2.3.0-preview1
+
+* resolve login/logout url, et al from named options (#2540)
+
+* resolve login/logout url, et al from named options #2532
+
+* log effective login, et al. paths
+
+* preview1-update1
+
+* bug in consent when user denies
+
+* add Securing Angular Apps with OpenID and OAuth2
+
+* Migrate tests to new IdentityModel style (1)
+
+* Migrate tests to new IdentityModel style (2)
+
+* Migrate tests to new IdentityModel style (3)
+
+* Migrate tests to new IdentityModel style (4)
+
+* remove unused handler
+
+* Migrate tests to new IdentityModel style (5)
+
+* Migrate tests to new IdentityModel style (6)
+
+* Finished integration clients with new idm style
+
+* added SO CC-BY-SA info and links
+
+* Renamed Client -> BackChannelClient
+
+* Update client authentication tests
+
+* Migrated PKCE tests
+
+* Migrated introspection tests
+
+* Migrated revocation tests
+
+* Found missing introspection test
+
+* Migrated DiscoveryEndpointTests
+
+* Merge fixes
+
+* Matched PR to new IdentityServer project structure
+
+* Switched to new device flow store
+
+* Moved in-memory device flow store to singleton
+
+* 6_aspnet_identity.rst (#2570)
+
+Incorrectly states "which replaces the call to UseIdentity" instead of "which replaces the call to UseAuthentication".
+
+* Added DeviceFlowCodeService to handle hashing codes and handle generation
+
+* update preview version
+
+* add new dotnet tool based build script
+
+* Add alternative dotnet tool based build file for bash
+
+* update bash
+
+* update ignore file
+
+* switch to new cake (#2593)
+
+* august sponsor update
+
+* Add strong name (#2597)
+
+* add strong name
+
+* update references to strongly named packages
+
+* updated ignore
+
+* Create jwk document when signing with JsonWebKey (#2604)
+
+* Update introspection.rst (#2606)
+
+Was referring to scope secrets. Reused sentence from https://github.com/IdentityServer/IdentityServer4/blob/release/docs/topics/reference_tokens.rst
+
+* Update secrets.rst (#2611)
+
+* add issue templates
+
+* Update issue templates
+
+* Update Feature_request.md
+
+* Delete feature_request.md
+
+* Delete bug_report.md
+
+* Update Bug_report.md
+
+* add NoBuild to build file
+
+* fix build - again
+
+* Create SECURITY.MD
+
+* update to new build/versioning
+
+* update bash script
+
+* update bash script
+
+* Switched validator to use code service instead of store
+
+* recursion ftw
+
+* Initial working device flow consent
+
+* Changing cake file to skip versioning on non-Windows (#2637)
+
+Changing cake file to skip versioning on non-Windows
+
+* update bash script
+
+* remove hard-coded versions
+
+* disable source link support because of problems with msbuild task
+
+* Update to new IdM docs
+
+* update endpoint docs to use new IdentityModel style
+
+* fix links
+
+* change color coding style
+
+* update from september
+
+* update to IdentityModel 3.10
+
+* add source link back
+
+* Make some internal types public to facilitate custom service implementations (#2545)
+
+* Make TokenCreationRequest.Validate() public so it can be invoked by custom impl of ITokenService
+
+* Make ClientExtensions public so they can be reused by custom IClientSecretValidator impl
+
+* move AccessTokenAudience to public constants for reuse in custom ITokenService impl
+
+* Change: Made DefaultUserSession.AuthenticateAsync overrideable so that (#2607)
+
+it will be easier to support user impersonation.
+
+* Corrected value for parsed secret type (#2658)
+
+* update csproj
+
+* update csproj
+
+* disable same-site for external cookie #2595
+
+* remove redundant call  #2582
+
+* make EndSessionRequestValidator public #2560
+
+* set cookies to IsEssential #2554
+
+* nuget update
+
+* code comments
+
+* support idp:local as idp hint #2641
+
+* add logic to enfore client's user sso lifetime #2609
+
+* Fixed access denied logic. Made use of new IdentityModel constants
+
+* Reviewed TODOs
+
+* Moved user code generator to correct folder
+
+* Basic retry policy for response generator. Updated some comments and class name
+
+* Added retry limit handling
+
+* Update unpredictable test
+
+* More IdentityModel constants
+
+* Redacted device code from logging
+
+* Updated IdentityServer4.Storage
+
+* Thread safety for InMemoryDeviceFlowStore
+
+* Ctrl+Shift+D
+
+* Merge fixes
+
+* Cake merge fixesreorg default impls and interfaces for consistencymove is4.csproj to top-level src folder, move hostfixes #1709Fixed typo in class name (#1413)
+Merge branch 'dev' of https://github.com/IdentityServer/IdentityServer4 into devMerge branch 'dev' of https://github.com/IdentityServer/IdentityServer4 into devUse response generator pattern for discovery endpoint (#886)
+
+* move discovery logic into response generator
+
+* add license headers and code comments
+
+* cleanupCleanup some of the internal API usage in Relational
+
+- Make EnumerableExtensions shared internal
+- Make ExpressionEqualityComparer public
+- Suppress Internal usage in EntityFrameworkRelationalServicesBuilder
+- Make ConfigurationSourceExtensions public
+- Suppress convention-less modelBuilder creation in Migration/SnapshotQuery: Clean up in ExpressionEqualityComparer
+
+Resolves #18685
+Resolves #10529
+Resolves #17959Change error message for not supported binding (#18004)
+Merge branch 'release/3.0'Merge branch 'release/3.0'Merge branch 'release/3.0'Switch to using the BCL HashCode type
+
+Also remove allocations from GetHashCode() methods by
+refraining from using LINQ.Add support for ExpressionType.Index to ExpressionEqualityComparer (fixes #14509) (#14511)
+Code cleanupQuery: Cleanup in NullConditionalEqualExpression->NullSafeEqualExpressionQuery: Check for null constructor in NewExpression while computing hash codeFix to #7787 - Query: NullConditional is not added to some complex queries with optional navigation and collection with subquery
+
+Problem was happening for InMemory queries with optional navigation and collection navigation, e.g.:
+
+from e in entities
+where e.Optional.Collection.Where(predicate)
+select e
+
+those would get rewritten into:
+
+from e in entities
+join o in optionals on e.Id equals o.EntityId into grouping
+from o in grouping.DefaultIfEmpty()
+where o.Collection.Where(predicate)
+select e
+
+and then:
+
+from e in entities
+join o in optionals on e.Id equals o.EntityId into grouping
+from o in grouping.DefaultIfEmpty()
+join c in collections
+where o.Id == c.OptionalId && predicate
+select e
+
+Problem was that o could be null (because of the optional navigation), which would result in NRE for InMemory.
+
+We could add null compensation on the o.Id, but then null semantics would kick in for relational producing the following predicate:
+
+WHERE o.Id = c.OptionalId OR o.Id IS NULL AND c.OptionalId IS NULL
+
+and we would get bad results for some cases (when o is null and collection element FK is null)
+
+Instead, fix is to introduce new reducible expression when creating predicate for the collection navigation rewrite, that for InMemory unwraps to:
+
+o != null && o.Id == c.OptionalId
+
+and for relational to simple comparison predicate: o.ID = c.OptionalId
+
+Additionally, we can now remove workaround for this issue during RequiresMaterialization calculation, which results in more efficient queries on relational (we no longer need to unnecessarily materialize some entities)Add delegated identity entity type support to EntityEntry methodsQuery: Include: Refactor to use tree data structure inside IncludeCompiler.Query: Refactor SelectExpression for referential integrity
+
+- No ad-hoc creation of ColumnExpression. When binding a property to SelectExpression, SelectExpression will generate appropriate expression for it. (BindPropertyToSelectExpression method which binds property even if it is not added to projection)
+- Removal of non-property ColumnExpression - ColumnExpression represent a column which is directly backed by EntityType.Property. For any other case, a different kind of expression should be used.
+- AliasExpression requires alias to be defined always. Hence unless column needs to aliased, it will not be made AliasExpression.
+- Implementation of Equals method of all extension expressions and using ExpressionEqualityComparer to compare expressions in Projection/OrderBy to avoid duplicates. This removes the complex logic in AddToProjection.
+- Removal of TryGetColumnExpression - All the places, which relied on assumption of having a column backed expression are changed to work with any kind of expression.
+- Introduction of ColumnReferenceExpression which can store reference to inner projected expression so that each expression knows its root inside the subqueries.
+- SelectExpression._starProjection stores list of expressions being used by outer SelectExpression.
+- Simplification of AddToProjection method - Method adds expression straight to projection. Bind method will create the expression to be added from property. Method also unique-fy alias if it is inside subquery. This method also update OrderBy list if a complex expression is getting added to projection and present in orderby by alias-ing it.
+- Removal of SourceMember/SourceExpression from AliasExpression, (which brought requirement of having every ColumnExpression as AliasExpression in projection). While visiting NewExpression in RelationalProjectionExpressionVisitor, we record SourceExpression to projected expression mapping and then we write MemberInfo to projected expression mapping in SelectExpression. Which is appropriately lifted during PushDownSubquery. This makes it possible for us to bind members after projecting into anonymous types.
+- Moved RelationalAnnotationsProvider to SelectExpression to find column name so that all the visitors trying to bind property with select expression does not need it to generate column name.PVS-Studio: fixed vulnerability CWE-670 (Always-Incorrect Control Flow Implementation)Query: Enables SQL translation of NullConditionalExpression.Fix #4705 - NotImplementedException on GetHashCode for Invoke and DefaultMerge branch 'release' into devFix to #4549 - ExpressionEqualityComparer NullReferenceException
+CR: Diego, AndrewQuery: Various fixes and minor perf improvements to query front-end:
+
+- Replace ET stringification hashing with ET EqualityComparer. ~100% improvement in dictionary key resolution micro-benchmark.
+- Parameterizer reworked. Code simplifications and minor perf improvements. Constants at the top-level (outside lambdas) are now parameterized correctly. Previously was causing cache bloat for Skip/Take queries.
+- Relational: SelectExpression Limit/Offset are now expressions allowing query parameterization.
+- Fixed a bug with SQL Date/DateTime literals - Looks like the SQL Server specific literal formats were innadvertantly removed with the RelationalCommandBuilder refactoring work.
+- Corrected parameterization of FromSql queries. FromSql arguments now represented as an expression.Metadata: Add overloads for configuring shared type as owned type (#21941)
+
+- Also fix issue in property mapping convention to exclude "shadow" properties on property bag which are no longer "shadow"
+
+Resolves #21892ModelValidator: Throw for unmapped initialized collection navigation (#21868)
+
+We were not checking collection navigations which are initialized inline and without setter.
+This worked fine for most part as
+- One sided collection were always added by convention
+- When there were multiple pairs and convention failed, opposite side had reference navigation which would end up throwing
+- Many to Many brings a twist that there is no reference on other side so in case we fail to add many to many skip navigations by convention, we would not throw.Metadata: Fix few Shared Type entity type bugs (#21860)
+
+- Add DefaultPropertyBagType in shared type by convention
+- Throw exception message for nonconfigured navigation pointing to shared type
+- Skip Shared type navigation when searching for FKAttribute on propertyMerge branch 'release/5.0-preview8'Add Fluent API for skip navigations.
+Make sure conflicting members are dealt with consistently when setting the base type.
+Preserve the service property with the same name on the base type.
+Preserve the configuration of conflicting service property with the same name on the derived type.
+
+Part of #19003Add skip navigation support in Metadata
+
+Part of #19003Merge pull request #17203 from dotnet-maestro-bot/merge/release/3.0-to-master
+
+[automated] Merge branch 'release/3.0' => 'master'Undo some GetTypeMapping changes to fix unpersisted properties.Make convention interfaces public.
+Rename convention methods to avoid collisions.
+Add ConventionContext to allow suppression of further convention execution.
+Add a convention marker interface.
+
+Part of #214
+Fixes #6681Address API Review feedback
+
+Part of #15662Move validating conventions to the model validator
+
+Issue #4016
+
+Also make sure validation logging is sent to the validation category, which means that `DiagnosticsLoggers` can be removed.
+
+There are some convention that do work and can throw exceptions. These have not been moved.Merge pull request #1797 from yyjdelete/localFunc
+
+Add support for generic and static local function
+
+Fixes #1588Support C# 7.3 pattern-based fixed statement.Merge pull request #1730 from icsharpcode/async-streams
+
+C# 8.0 Async streamsMerge branch 'master' of https://github.com/icsharpcode/ILSpyGetMinimumRequiredVersion(): Add case for C# 8.0Merge pull request #1246 from siegfriedpammer/cs73-stackalloc-initializers
+
+C# 7.3 stackalloc initializersAdd detection of local functions, so we do not hide the methods/display classes.Refactor TS representation of ref / readonly structs. Add support for in parameters.Add LangVersion support to WholeProjectDecompiler and add NonTrailingNamedArguments setting.Use `Type.EmptyTypes` and `Array.Empty<T>()` to replace our custom code of the same functionality (#9042)
+Remove comments after closing bracket (#8503)
+Removed double spaces from .cs and .ps1 files (#4743)
+Use ISOWeek for week numbers in Get-Date (#11536)
+Run CodeFormatter for Utility module (#9376)
+Add '%F' case to Get-Date -UFormat (#7630)
+Format Utility `csproj` with updated `codeformatter` (#7263)
+
+Related #4708.
+
+Format Microsoft.PowerShell.Commands.Utility.csproj by codeformatter with default options.
+
+The codeformatter is used that I compiled with newest Roslyn packages (version 2.8.2).Remove dummy comments in Utility module files (#7224)
+
+* Remove dummy comments (like } // dummy ) in Utility module files
+* Fix new line at eof.Re-order UFormat options in Get-Date (#6627)
+
+Place in alphabetical order the optionsSome fixes  in Get-Date -UFormat (#6542)
+
+* Use UTC datetime in Get-Date -UFormat %s
+Fix %l output from 0..11 to 1..12
+Fix %V using Gregorian calendar
+
+* Use a workaround for ISO 8601 week of year (uformat %V)Correct the '%c', '%l', '%k', '%s' and '%j' formats in 'Get-Date -UFormat' (#4805)
+Add better error message for empty and null -UFormat arg (#5055)
+
+Add better error message for empty and null -UFormat argFix `Get-ChildItem -Path` with wildcard char (#9257)
+
+Unescape non-literal, non-glob path before existence checking.Run Codeformatter for SMA (#9402)
+get-childitem -LiteralPath should accept 'Include' or 'Exclude' filter (#5462)
+
+* get-childitem -LiteralPath should accept 'Include' or 'Exclude' filterGet-ChildItem <PATH>/* -file should include <Path> as search directory (#5431)
+
+* get-childitem <PATH>/* -file should include <Path> as search directory
+
+* [Feature] Added check for -Directory and more tests
+
+* [Feature] Added check for the dynamic parameter type
+Make Get-ChildItem honor Depth parameter with Include/Exclude (#4985)
+
+* Add depth to ProcessPathItems
+
+* Honors capped recursion when using Include or Exclude filters with Get-ChildItem
+
+* Including test cases to test include/exclude recursion
+
+* Swap optional parameter for overloadQuery: Allow ToList on non queryables (#21502)
+
+Resolves #21483Query: Bind projection member in client eval (#21458)
+
+Resolves #21445Merge branch 'release/5.0-preview6'Query: Check if parameter.Name is not null before comparing it with query parameter
+
+Resolves #20485
+- Parameters which are used inside lambda should get replaced with appropriate shaper/selector.
+- All other parameters should be query parameters otherwise it is an error.
+
+Resolves #18502
+- Non query parameters should not get translated. Query parameters which are translated will always have value in QueryContext.Merge branch 'release/3.0'Add support for eager loaded navigationsQuery: Convert MaterializeCollectionNavigation to expression from methodCall
+
+For easier processing in the treeQuery: Wrap up collection materialization code path for relational
+
+Bugs fixed
+- Allow ToList on collection projection to be called with less derived type
+- Project out necessary identifiers for collection join when pushing down. (Except distinct case)
+- Lift ordering from inner collection to generated ordered result (This would be improved further by #16226)
+- Map Cast from Enumerable to Queryable
+- Translate AsQueryable as no-op
+
+Resolves #12098
+Resolves #15043
+Resolves #15611
+Part of #15711Query: Dry code for generating column alias
+
+Added AddToProjection method which de-dupe columns and assign unique alias if subquery
+Also added ability to assign alias based on member name in anonymous type projection
+TableExpressionBase.Alias is either null or non-empty string to make processing it easierQuery: Rename classes which had clashes before[Query] Implement Reference Include
+
+Works for Sync/Async both with multi level support
+
+Resolves #15064
+Changes:
+- Flow IncludeExpression in tree rather than method call. This will get converted to client method during compilation
+- Introduce Client method to perform include in relational layer (which also calls appropriate functions and does tracking)
+- Pull out components into variables in shaper recursively
+- Dedupe client projections in SelectExpression[Query] Allow Client Eval in Projection
+
+Resolves #15715
+Resolves #15719
+Resolves #15716[Query] Remove QueryExpression from ProjectionBindingExpression (#15609)
+
+Invariant: ProjectionBindingExpression can only appear in ShapedQueryExpression.ShaperExpression and it would always refer to ShapedQueryExpression.QueryExpressionSimplify default(T) in C# 7.1:fire: Remove non-cancellation token overloads of QueryableExtensions
+Make CancellationToken an optional param on remaining overloadsAdded "Override screenshots folder" option to hotkey task settings, task tabfixed #736: Added option to support transparent region selection in screen recorderfixed #2055: Show encoding progress in tray icon textRevert previous commit changes, it not works properly with game windowsWhen doing screen recording, after select region if previous active window is not active anymore then restore & activate itScreen record manager refactoringEven size not required for animated imagesRemoved screen record cli option because task actions already can do same thing and with two pass encoding option it is not that required anymore#765, #3656: Added WebP encoding support to screen recordingScreen record refactoringMerge pull request #3642 from Jaex/master
+
+fixes #2265: Added two pass encoding optionUsing ContinueInCurrentContext in few placesRemoved TaskEx class instead using async/await#3530: Save buttons in image editor will use task settings to generate name if file name is not supplied yet, that way user can save without use "save as..." dialog firstUse workflow task settings instead of default, few renamesSave GIF palette to Tools folder instead of near FFmpeg.exefixed #2973: Because while screen GIF recording YUV-420 color space is not required for x264 encoding, odd size can be usedfixed #2884: If screen recording closed by other means like alt + f4 then make sure to abort screen recordingLimit screen record region to screen boundsIn screen recording if stop requested while recording is not started yet then abort recording to avoid gif encoding issuesfixed #2437: Allow animated gif recording using normal screen recording hotkeyRemoved screen recording gif encoding option because FFmpeg method is better in both performance and quality,
+Changed default gif fps to 15fixed #2146: Check is file exists and then show file exists dialog before screen recording startfixed #2145: After screen recording if file name modified in after capture window then rename video filefixed #1951: After screen recording support loading animated gif from file path in after capture formRename RegionCaptureHelpers to RegionCaptureTasksAdded RegionCaptureOptions parameter to each function in RegionCaptureHelpers classMaking Screenshot class non staticMoved all region capture related helpers to RegionCaptureHelpers classAdded custom region hotkeys for screen recording & screen recording (GIF)Custom file name support for taskAllow stop/kill before recording startOnly start recording timer when FFmpeg started recordingScreen recording works nowAnother interim commit about screen recordingInterim commit, ScreenRecordForm improvements and using ScreenRecordManager classFix `RCS1114: Remove redundant delegate creation` (#12917)
+Resolve the working directory as literal path for `Start-Process` when it's not specified (#11946)
+Minor cleanups in Process.cs (#9195)
+
+* Use string.Join
+* Use char constEnable UseShellExecute on all platforms (#7198)
+
+Previously, we limited use of UseShellExecute when starting a new process to only Windows Desktop.  However, CoreFx now supports UseShellExecute (appropriately calling `open` on macOS and `xdg-open` on Linux) so we can have a consistent code and remove some of the existing redundant code or unnecessary limiting code.Add -WhatIf switch to Start-Process cmdlet (#4735)
+
+* Add -WhatIf switch to Start-Process cmdlet
+* Add test for the -WhatIf switch 
+
+* Added a test to ensure that using a whatif switch prevents the action from being performed.
+
+* Incorporated code review comments
+
+* merged two tests into one as suggested
+
+* Included the error action at the end of the cmdlet
+
+* Remove extra space before `StringUtil` and new line
+
+* Renamed the resource string id ProcessStartInfo to StartProcessTargetClean up ShellExecute code to use the .NET Core implementation (#4523)
+
+* Clean up ShellExecuteHelper and enable ShellExecute in NativeCommandProcessor
+
+* Minor fix
+
+* [Feature] Fix NativeCommandProcessor to clean up in case an exception is thron
+
+* [Feature] Update tests
+
+* [Feature] Address comments
+
+* address one more comment
+
+* Address some more commentsRefactor PowerShell Core to use the default CoreCLR loader instead (#3903)
+
+Remove the code that spins up our own assembly load context. Keep the code that registers our `Resolve` method to the default loader's `Resolving` event, so that we can continue to do special assembly resolution as needed (such as the GAC probing logic needed for consuming FullCLR PS modules).
+
+Essentially, the assembly `Microsoft.PowerShell.CoreCLR.AssemblyLoadContext.dll` is not needed anymore, the remaining code should be moved to S.M.A.dll. However, that will break DSC and other native hosts that are hosting powershell. So this assembly is kept for now.Move powershell to .NET Core 2.0 (#3556)
+
+This change moves powershell to .NET Core 2.0. Major changes are:
+1. PowerShell assemblies are now targeting `netcoreapp2.0`. We are using `microsoft.netcore.app-2.0.0-preview1-001913-00`, which is from dotnet-core build 4/4/17. We cannot target `netstandard2.0` because the packages `System.Reflection.Emit` and `System.Reflection.Emit.Lightweight`, which are needed for powershell class, cannot be referenced when targeting `netstandard2.0`.
+2. Refactor code to remove most CLR stub types and extension types.
+3. Update build scripts to enable CI builds. The `-cache` section is specified to depend on `appveyor.yml`, so the cache will be invalidated if `appveyor.yml` is changed.
+4. Ship `netcoreapp` reference assemblies with powershell to fix the issues in `Add-Type` (#2764). By default `Add-Type` will reference all those reference assemblies when compiling C# code. If `-ReferenceAssembly` is specified, then we search reference assemblies first, then the framework runtime assemblies, and lastly the loaded assemblies (possibly a third-party one that was already loaded).
+5. `dotnet publish` generates executable on Unix platforms, but doesn't set "x" permission and thus it cannot execute. Currently, the "x" permission is set in the build script, `dotnet/cli` issue [#6286](https://github.com/dotnet/cli/issues/6286) is tracking this.
+6. Replace the use of some APIs with the ones that take `SecureString`.
+7. osx.10.12 is required to update to `netcoreapp2.0` because `dotnet-cli` 2.0.0-preview only works on osx.10.12.
+8. Add dependency to `System.ValueTuple` to work around a ambiguous type identity issue in coreclr. The issue is tracked by `dotnet/corefx` [#17797](https://github.com/dotnet/corefx/issues/17797). When moving to newer version of `netcoreapp2.0`, we need to verify if this dependency is still needed.Add support to ShellExecute in powershell core when it's running on Windows full SKUs (#3281)
+
+* Add ShellExecute support to PowerShell core on windows full desktop
+* Add tests for Start-Process and update existing related testsMerge pull request #2156 from charub/StartProcessIssue
+
+Provide an unsupported message for 'Verb' parameter (#1691)Merge pull request #1120 from PowerShell/andschwa/merge-sd
+
+Merge SD changeset 715912Merge pull request #787 from PowerShell/andschwa/platform-module
+
+Remove Microsoft.PowerShell.PlatformRevert "Update files from psl-monad"
+
+This reverts commit 9ed2c2a68b31429d781e140b581e6073d53d95d7.
+This commit is here to make source-depot branch a parent of masterUpdate files from psl-monad
+
+This commit uses psl-monad branch source-depot 28156300
+And corresponds to [SD:692351]Use language keywords instead of BCL types (#102)
+Remove extra semicolons (#63)
+Fix a few typos in comments (#54)
+Style: Member access symbols should be followed with member name (#8517)
+Style: Remove extra space before colon in named parameters (#8504)
+Remove unused commented out code (#7935)
+Refactor module version/GUID comparison logic (#7125)
+Support importing module paths that end in trailing directory separator (#6602)
+
+Clean up workflow logic in the module loading component (#6523)
+
+Clean up workflow logic in the module loading component.
+Workflow module is not supported in PSCore.
+Currently, Import-Module throws a terminating error when seeing .xaml modules. After the change, Import-Module throws a non-terminating error when seeing .xaml modules.Merge pull request #1375 from PowerShell/cchen/bugfix
+
+msft:8027609 Get-Module -List and Test-ModuleManifest import the the …Merge pull request #1001 from PowerShell/andschwa/import-sd
+
+Merge Source Depot changesFixed rectangle limitLimit crop rectangle to inside canvasfixed #2963: Make sure to set initial size on shape paste so proportional resizing can workDon't use proportional resizing for side nodesRevert position assignmentAdded proportional resizing with resize node supportInterim commit for proportional resizing with resize nodeFixed OnResizing issueMerge pull request #2907 from L1Q/master
+
+Fix shape moving twice when moving and panning at the same timeRename variablesRename classesfixed #1714: Center resize nodes to cursor that way magnifier can show exact pixelMoved node logic to BaseShapeMerge pull request #3413 from AutoMapper/forallmaps
+
+Enable ForAllMaps to work with ForCtorParamMerge pull request #3356 from jez9999/master
+
+Reverse naming conventions for reverse maps by defaultMerge pull request #3236 from stehlikio/master
+
+Fix inheritance of ReplaceMemberName global configuration in ProfilesMerge pull request #3134 from AutoMapper/remove-dynamic-maps
+
+Remove dynamic mapsMerge pull request #3102 from lbargaoanu/create_missing_type_maps
+
+Deprecate CreateMissingTypeMapsMerge pull request #2960 from bfcamara/ShouldMapMethod
+
+Add support to specify ShouldMapMethod Merge pull request #2698 from lxalln/should-map-ctor
+
+ Implement ShouldUseConstructorMerge pull request #2379 from AutoMapper/InlineConfig
+
+Inline config and auto-auto-mappingMerge pull request #2261 from jbogard/ValueTransformers
+
+Value transformers in global, profiles, type maps, and membersMerge pull request #1992 from AutoMapper/VS2017
+
+Visual Studio 2017 supportMerge pull request #1933 from lbargaoanu/EnumWithCreateMissingTypeMaps
+
+Exclude more system base typesMerge pull request #1797 from AutoMapper/GlobalConfiguration
+
+Global configurationPort Windows PowerShell AppLocker and DeviceGuard UMCI application white listing support (#6133)
+
+These changes port Windows PowerShell support for Applocker and DeviceGuard User Mode Code Integrity (UMCI) to PSCore6. Windows PowerShell uses public APIs to determine if a system is in locked down mode via AppLocker or DeviceGuard, and automatically runs in constrained language mode. For more information about PowerShell constrained language, see: https://blogs.msdn.microsoft.com/powershell/2017/11/02/powershell-constrained-language-mode/
+
+This support for application whitelisting has mostly existed in PSCore6, but the primary APIs were stubbed out in CorePSStub.cs because they relied on Windows only DeviceGuard (wldp.dll) and AppLocker (Safer APIs) public APIs. These changes re-implement PowerShell lock down APIs on PSCore6 for Windows platforms only. The AppLocker and DeviceGuard public APIs are currently only implemented in Windows OSes and are not supported on Linux or MacOS platforms.
+
+Tests have also been ported to PSCore6 and run only for Windows platforms.
+Make 'AllSigned' execution policy require modules under $PSHome to be signed (#5511)
+
+Fix CA1507:UseNameofInPlaceOfString, adjust formatting of some older source files copied from NRefactory.Fix #1523: Search throws EnumUnderlyingTypeResolverExceptionMerge pull request #1505 from icsharpcode/fixed-buffers
+
+Fixed buffers enhancementsCSharpAmbience: add option to hide parameter default values.CSharpAmbience: Add ConversionFlags.ShowParameterModifiers and ShowTypeParameterVarianceModifier to make labels in ILSpy main tree view more concise. + Added Tests.Use IAmbience API in CSharpLanguage.#1904: Cherry-picked SharpTreeView changes from SharpDevelop repository.
+
+7edf1c4f1 fix focusing bug in SharpTreeView
+60b89bb14 Changed behavior for 'Key.Space' in SharpTreeView.cs, instead of 'double click', now it sets 'IsChecked'.
+103aff080 Set e.Handled = true in SharpTreeView.OnKeyDown()
+c928f88b5 Fix F2/Escape for editable SharpTreeNodes.
+6b01d6f55 Fix #354: "+" icon in SharpTreeView is missing right border in 120DPI modeMerge branch 'master' of github.com:icsharpcode/ILSpy into vb
+
+Conflicts:
+	ICSharpCode.Decompiler/ICSharpCode.Decompiler.csproj
+	ILSpy.sln
+	ILSpy/ILSpy.csprojAllow expanding/collapsing nodes with numpad plus/minus.Improve SharpTreeView keyboard navigation.SharpTreeView: improve left/right keyboard navigationAllow `Test-ModuleManifest` to work when `RootModule` has no file extension (#8687)
+Make 'Test-ModuleManifest' not load unnecessary modules (#4541)
+
+Fix Test-Modulemanifest to normalize paths correctly before validating (#3097)
+
+Changed hard coded Windows directory separator and resolved path so the slashes are correct.
+Throw if resolving file path returns more than one result
+
+Fixes #2610Merge pull request #1328 from PowerShell/dongbo/type-completion
+
+Fix issue #682 - [system.manage<Tab>] doesn't workMerge pull request #762 from PowerShell/vors/master
+
+Add changes from source-depot branch and Start-ResGenAdd SkipCA and SkipCN check requirement to WinRM/OMI HTTPS connection (#8279)
+Allow Basic Auth over HTTPS (#6890)
+
+* [FEATURE] Allow Basic Auth over HTTPS
+
+* WSManTransportManager.cs: Simplify HTTPS check
+Update comment in test to refer to the right exception type.
+
+* Disable test until limi crash fo selected connection error paths is fixed
+
+* Use Hex format for defining the expected HRESULTDisallow Basic Auth over HTTP on Unix (#6787)
+
+Disallow Basic Auth over HTTP on Unix
+
+Fix: #6779Merge pull request #1716 from icsharpcode/metadata-explorer
+
+Metadata ExplorerFix #1615: Handle nil tokens gracefully.Disassembler: Refactor InstructionOutputExtensions.WriteTo: Reduce code duplication; Add support for unmanaged calling conventionsDisassembler: Fix output of calling convention and flags in standalone method signatureFix #1233: Fix some crashes on corrupt type references.Rethrow to preserve stack details for better maintainability (#12723)
+Style: Match file name casings of C# source files for Utility commands (#9329)
+
+Renames C# source files for `Microsoft.Powershell.Commands.Utility` to follow a common file name casing scheme.
+
+## PR Context
+
+This PR is only a style change and doesn't affect any logic.Handle operations with ByRef-like types gracefully in PowerShell (#7533)
+
+ByRef-like types are supposed to be used on stack only, so we need to fail gracefully when accessing properties, calling methods, or creating objects related to ByRef-like types.Exclude '-Comobject' parameter of 'New-Object' on unsupported platforms (#4922)
+Change 'String' to 'string' for simple references (#8519)
+Reformat code according to EditorConfig rules (#11681)
+Adding `-SecurityDescriptorSDDL parameter` to `New-Service` (#10483)
+Add -SecurityDescriptorSddl parameter to Set-Service (#8626)
+Fix `Set-Service -Status Stopped` to stop services with dependencies  (#5525)
+Added BinPath, Description, UserName and Delayed Auto Start to Get-Service (#4907)
+
+Added the following to the  Get-Service  command:
+•BinaryPathName (Was suggested as  ServicePath )
+•Description
+•UserName (Was suggested as  LogOnAs )
+•DelayedAutoStart
+•ServiceStartupType
+
+The ServiceStartupType was also added, providing the user access to use services like in  services.msc , having  Automatic ,  Automatic (Delayed Start) ,  Manual  and  Disabled  as options (Also includes  InvalidValue  as an initial value for  ServiceStartupType )Remove '-ComputerName' from 'Get/Set/Remove-Service' (#5094)
+SetServiceCommand: Add positional parameter attribute (#5017)
+
+* SetServiceCommand: Add positional parameter attribute
+
+Added a positional parameter attribute to the InputObject parameter,
+giving Set-Service behavior similar to the other *-Service cmdlets.
+
+* Add test for positional InputObjects [Feature]
+
+Added a test to Set-Service validating InputObjects passed positionally.[Feature]Added Remove-service to Management module (#4858)
+
+* [Feature]Remove-Service added to Management module
+
+* [Feature]Capitalization
+
+* [Feature]Added test cases for Remove-Service, Removed return value
+
+* [Feature]Documentation from copy-paste code corrected to reflect the new function
+
+* [Feature]Erroraction to be sure that an error is thrown in testcase
+
+* [Feature]Removed direct reference to module in Pester test
+
+* [Feature]Removed extra line in test
+
+* [Feature]Use FullyQualifiedErrorId in Remove-Service test without a valid servicename
+
+* [Feature]Exposed Remove-Service
+
+* [Feature]Consistent casing, Named Arguments & Remove incorrect exception on cleanup
+
+* [Feature]Remove-Service test should fail if the service was not removed
+
+* [Feature]Cleanup comments & add Remove-Service for CI
+
+* [Feature]Remove-Service in CI set in alphabetic order
+
+* [Feature]Use ParameterSetName instead of _ParameterSetName and rewrite test which used the function class directly
+
+* Revert "[Feature]Use ParameterSetName instead of _ParameterSetName and rewrite test which used the function class directly"
+
+This reverts commit da41f7deb811f32538e0dc7f0d811646ceb8acf8.
+
+* [Feature]Remove _ParameterSetName check & added test for pipeline input in
+Set-ServiceAdded functionality to set credientials on Set-Service command (#4844)
+
+Now we can specifiy the -Credential parameter on Set-Service cmdlet to change a service's logon account.fix set-service failing test (#4802)
+
+* Add '-ErrorAction Stop' in Set-Service.Tests.ps1 to correctly test exceptions.
+* Refactor StartupType service code and add a throw for disabled startup types (System, Boot).
+* Made StartupType(-1) equivalent to Win32 SERVICE_NO_CHANGE.Fix #1865: At least one of the first two operands in string concatenation needs to be of type `string`, so we can't always drop `ToString()` calls.Don't remove redundant ToString() calls in expression trees.#1691: Further improvements for decompiling the new VS 2019.3 string concatenation IL patternFix #1691: Remove ToString() calls inserted by C# compiler.#1691: Avoid replacing string.Concat() with operator+ when the evaluation order depends on the compiler version.Fix #1618: Unwrap in-arguments, when converting method calls to operators.Fix #1552: user-defined and decimal increments
+
+For user-defined increments, there were problems with Roslyn was optimizing out one of the stores.
+The new transform FixRemainingIncrements now takes increments/decrements that were not detected by TransformAssignment and introduces a temporary variable that can be incremented.
+This sometimes requires un-inlining via the new ILInstruction.Extract() operation.
+Extract() is not supported in all possible contexts, so it is possible but unlikely that some op_Increment calls remain.
+
+For decimals, the situation is different: legacy csc actually was optimizing "d + 1m" to "op_Increment(d)", so we can get rid of any left-over increments by undoing this optimization. This now happens in ReplaceMethodCallsWithOperators.Merge pull request #1012 from icsharpcode/string-interpolation
+
+C# 6 String interpolationMerge branch 'master' of https://github.com/icsharpcode/ILSpyMerge pull request #877 from icsharpcode/using
+
+UsingFix detection of String.Concat calls with partially non-string arguments.CodeGenerator fixes (#6347)
+
+Multi-target Orleans sln and tests (#6190)
+Support adding [DebuggerStepThrough] to generated classes via project option (#6017)
+Add codegen error for non-awaitable grain interface methods (#5530)
+New Code Generator (#4934)
+
+* Implement code generation via source analysis
+
+* Use old codegen for src folderAvoid usage of do statement to create an infinite loop (#13137)
+
+* Autofix RCS1063Add support to show suggestions on CommandNotFound exception (#8458)
+
+* support fuzzy matching with get-command and on CommandNotFound exception, show suggestion
+* fix CodeFactor issues
+* change algorithm to use Damerau-Levenshtein Distance which is more useful in finding close matchesQuery: Materialize Required dependents always (#22019)
+
+- Also remove additional conditions in SelectExpression
+
+Resolves #21807
+Resolves #12100Query: Change TPT to use string discriminator column (#21784)
+
+Part of #21509Query: Rewrite entity equality for dependents sharing table (#21747)
+
+Resolves #20342Update 'Update-Help' to save help content in user scope by default (#6352)
+
+Add the parameter `-Scope` to `Update-Help`, which takes `AllUsers` or `CurrentUser`. The default value is `CurrentUser`.Add cache for GetApplicationBase (#3969)
+Add "Hide empty metadata tables in tree view" optionAdd bracket highlighting to ILSpy.Merge pull request #1471 from icsharpcode/decompiler-options-rework
+
+Rework C# decompiler options dialog.Fix #1130: Some options on the Decompiler page seem to be more related to DisplayFix #628: Add option to display metadata token in 10-based or hex format.Fix #1013, #1034: Option to show code unfolded (expanded) by defaultMerge branch 'OndrejPetrzilka-sort_results'Clean up MiscSettings and DisplaySettingsMerge pull request #624 from MattDuffin/wordwrap
+
+Added word wrappingMerge commit 'refs/pull/467/head' of github.com:icsharpcode/ILSpySpecifying an alias and `-Syntax` to `Get-Command` returns the aliased commands syntax (#10784)
+
+@ChrisLGardner Thank you for your contribution and your patience.Clean up uses of `CommandTypes.Workflow` and `WorkflowInfo` (#6708)
+
+[breaking change] Clean up code related to the uses of `CommandTypes.Workflow` and `WorkflowInfo` in `System.Management.Automation`. This change mainly affects help provider code.
+
+This PR includes a few minor breaking changes:
+- Change the `public` constructors of `WorkflowInfo` to `internal`. We don't support workflow in PSCore, so I think it makes sense to not allow people to create `Workflow` instances.
+- Remove the type `System.Management.Automation.DebugSource` since it's only used for workflow debugging.
+- Remove the overload of `SetParent` from the abstract class `Debugger` that is only used for workflow debugging.
+- Remove the same overload of `SetParent` from the derived class `RemotingJobDebugger`.Merge pull request #2106 from jsoref/spelling-debug
+
+spelling: debug
+
+- Fix spelling in debug asserts and tracing
+- Fix telemetry event name for PackageManagementClean up 'GetTypeInfo()' calls in other engine sub-folders (#6635)
+
+'GetTypeInfo()' were added when porting PowerShell to early version of .NET Core (prior .NET Core 1.0).
+Most properties and methods in 'System.Type' were missing at that time. Now the call is not needed anymore and should be removed.Clean up ClrFacade.cs - remove ClrFacade.PtrToStructure (#4379)
+Make ILRange field private - introduce public API for IL range manipulation.#1195: Fix comparison of object reference with ldc.i4 0.Fix short-circuiting operators when the rhs is a comparison with 0.Eliminate the dedicated logic.not instruction, and treat it as syntax sugar similar to logic.and/logic.or.
+
+'logic.not(arg)' is now represented using 'comp(arg == ldc.i4 0)'.[nullables] Lifting for non-equality comparisons.Make ReferenceEqualityComparer real internal (#20685)
+
+Fixes #20629Query: Remove extension methods on IAsyncEnumerable
+
+Remove test for #15950
+Remove ToLookup API for #15916
+Resolves #15924Add ToLookupAsync extension methods for IQueryableFinish removing usages of Moq
+
+Issue #7627Code cleanupRemove use of IX-Async ForEachMove Strings classes to M.D.E.Internal and add prefix
+
+Issue #3090Improve generated resources classes
+
+Changes:
+* Remove properties for resources with arguments
+* Remove methods for resources without arguments
+* Remove "Format" from method namesCode cleanupAdds more queryable ext. methodsInitial integration of re-linq:
+
+- Mostly functioning re-linq based in-memory provider.
+- Re-linq based IQueryable/IQueryProvider impl.
+- Updated reln. provider to use new in-memory provider.
+- Initial LINQ FT infra.Add support to `ActionPreference.Break` to break into debugger (#8205)
+Fix conditions for transcription of Write-Information command. (#6917)
+
+Makes a transcription of Write-Information command consistent with $InfomrationPreference variable.Add the experimental feature 'PSUseAbbreviationExpansion' to support tab completion on abbreviated command names (#8109)
+Fix terms checker issues (#12189)
+Merge remote-tracking branch 'upstream/master'Add null host name check in WSMan (#11288)
+API review fixes (#21324)
+
+* Rename savepoint name parameter
+* Rename ComputedColumnIsStored -> IsStored
+* Fix IsStored-related breaking changes to migrations buildersAdd option for specifying stored/virtual on computed columns (#20540)
+
+Closes #6682Support specifying collations on columns and databases (#20602)
+
+* Added metadata and migration support for column- and database- level
+  collations.
+* Scaffolding implemented for SQL Server. Sqlite seems to not be
+  reporting the collation in pragma_table_info (need newer version?)
+
+Closes #19275
+Closes #6577Fix for 11614 - Adding HasPrecision() APIs (#20468)
+
+Fixes #11614  - HasPrecision(). Updates to scaffolding and migrations.
+Now process all facets for all TypeMappings in Scaffolding.
+Update format of datetime parameters to include the fractional seconds and update tests to matchAllow table/column comments to be specified in the modelMerge branch 'release/2.2'Implement IsFixedLength API
+
+Issue #9579Merge branch 'rel/2.0.0-preview2' into devAdd support for SQL Server memory-optimized tables
+
+Add ForSqlServerIsMemoryOptimized() EntityBuilder extension method
+Add support for conventions to run when an annotation is set
+Change conventions to not set cascade delete on foreign keys on memory-optimized tables
+Add convention to configure keys and indexes as nonclustered on memory-optimized tables
+Change IsClustered extension method on builders to take a bool?
+
+Add AlterDatabaseOperation and AlterTableOperation
+Add old values to all alter operations
+Add migrations annotations providers for IModel and ISequence
+Add migrations annotations providers for removed objects
+Set migrations annotations on drop operations
+Diff migrations annotations for IModel, IEntityType and ISequence
+
+Add support for memory-optimized tables to RelationalDatabaseCleaner
+
+Fixes #6405
+Fixes #3122Split tools into VisualStudio and DotNet packages and implement ef.exe
+
+Issues:
+
+ - Fix #646 - implements assembly-based command line interface
+ - Fix #5273 - Split tools packages into .Tools.DotNet and .Tools.VisualStudio
+ - Fix #5334 - Refactor cmdlets/dotnet-ef to invoke ef.exe/ef.dll
+ - Fix #5684 - Use nuspec's instead of Sake
+ - Fix #5839 - throw warning when architecture is not in {x86, x64, AnyCPU}
+
+Other changes:
+
+ - Add --no-color and --no-appdomain to command line tools
+ - Add --json option to 'dbcontext scaffold' and 'migrations remove'
+ - Refactor the inside-man invocation for Tools.DotNet to use "ef.dll" instead of invoking .Design.exe.
+ - Add native powershell module for processing/forwarding streams
+ - Reorganize code
+    *  :broken_heart: break up DotNet and VisualStudio command line tools into separate packages
+    * Push down execution logic dode from Tools.VisualStudio into .Design.
+    * Lift code from .Design.Core to .Design
+    * Reorganize test projects
+    * Create a powershell only project for Tools.VisualStudio
+    * Move tests into appropriate test projects and adjust namespacesRename Microsoft.EntityFrameworkCore{.Tools.Core} => {.Design.Core} and drop version from rc3 to preview2Migrations: Add first-class property facets
+
+Resolves #5223Merge branch 'release' into devMerge branch 'release' into devCommands: Make API Review changes
+
+Resolves #1774Migrations: Second-round API Review changes:art: Migrations: Make first-round API Review changes
+
+Lots of renames and a few minor refactorings...Migrations: Deffer type mapping until SQL generation
+
+Resolves #2421Changes to default and computed value SQL
+
+Specifically:
+- Make computed expression relational, not SQL Server, specific
+- When using fluent API to set default or computed SQL, set value generation appropriately
+- Use one metadata slot for column SQL with value generation deciding how it is used
+- Update Migrations to work with these changes
+- Generate temp values for GUIDs unless store generation has been asked for
+- Renaming based on API review decisions (although we may want to revisit, since its not very consistent)API review changes
+
+- Remove members from public IDatabase contract that are not publicly consumed
+- Remove DatabaseException as YAGNI
+- Do not rename DbUpdateException or DbUpdateConcurrencyException even though we had decided to because it doesn't meet the bar in guiding principles for changing the name of existing classes.
+- Remove unused IRelationalDataStore
+- Remove IDatabaseConnection
+- Make IDatabaseProviderSelector internal
+- Remove auto-configuration of providers--A UseXxx method must always be called
+- Move ProviderInvariantName to Services class to make it easier to access from anywhere and make it return provider assembly name by default
+- Rename "Name" to "ConstraintName", "IndexName", and "KeyName"
+- Rename "Table" to "ToTable" to align with old name
+- Renamed metadata XxxExtensions classes to XxxAnnotations
+- Rename "Colunn" to "HasColumnName" to align with old name
+- Rename "ColunnType" to "HasColumnType" to align with old name
+- Note: Have not removed ForSqlServer yetMerge branch 'release' into devRefactor Migrations architecture
+
+Resolves #1347, #1283, #1240, #1212, #1178, #1107, #1108, #1067, #879, #851 & #666Added RandomFast and RandomCrypto classesAdded week of year pattern (%wy) for file namingAdded random emoji support to file naming, example: %remoji{10}Added random non ambiguous alphanumeric character support for file namingIn name parser replace spaces in process name with underscoreDon't duplicate replace charactersFew %rf related changesMerge pull request #3113 from AtlasTheBot/master
+
+Add %rf to use a random line from a filefixed #1403: Added random adjective and animal support for file naming similar to Gfycat namingAdded code menu to screen color picker textbox, improvements to CodeMenuEntryAdded code menu for custom region capture info textReplace all string.Empty with ""In name parser preview show fake %width, %height valuesRemove unnecessary parenthesisMerge pull request #1007 from davidruhmann/codemenu_options_and_categories
+
+codemenu options and categoriesMerge pull request #931 from davidruhmann/nameparser-parameter-support
+
+nameparser parameter supportfixed #548: Added custom time zone option for name patternChanged project namings (Example: HelpersLib -> ShareX.HelpersLib)fixed #256: Name parser %yy for 2 digits yearMerge pull request #235 from michalx2/master
+
+Add extension filters to after capture actionsSome code changes, using NameParser.Parse static methodAdded %pn (Process name of active window) to name parserAdded max name pattern length and title length settingsInitial commit of ShareX project r748Cleanup updatablehelpsystem and enable XSD validation on MAML help content (#8335)
+Merge pull request #1695 from PowerShell/frangom/helpsystem
+
+Fixing get-help on LinuxCode cleanup: use IndexOf(char) overload (#9722)
+
+- Use IndexOf(char) overload instead of IndexOf(string) to benefit from Ordinal search
+- Replace IndexOf with Contains to get more understandable code
+- Use StringComparison.Ordinal for ASCII charsAdding -Extension and -LeafBase switches to Split-Path (#2721)
+
+* Refactoring ParsePathCommand.cs (SplitPathCommand) for readability
+   - Using auto properties when no when there is no logic in getter/setter
+   - Removing unused code
+   - Removing redundant qualifiers
+   - Removing Redundant initializers
+* Add -Extension and -Leafbase switches to Split-Path cmdlet
+   - Extension and LeafBase are specializations of Leaf, and uses System.IO.Path.GetExtension and System.IO.Path.GetFilenameWithoutExtension to extract parts from the Leaf
+* Adding tests for Split-Path -LeafBase and Split-Path -ExtensionMerge pull request #1199 from PowerShell/jasonsh/split-path-qualifier
+
+Revert Unix specific Split-Path -Qualifier codeUpdate links that contain 'en-us' culture (#7013)
+
+Update links that contain 'en-us' culture to remove 'en-us' culture (if possible) and in some cases update to newer re-directed link to docs.microsoft.com
+Fix GetLocationCommand output type parameter set and style issues (#8324)
+fix detection of whether `-LiteralPath` was used to suppress wildcardexpansion for navigation cmdlets (#5038)
+
+* [feature]
+fix detection of whether `-LiteralPath` was used to suppress wildcardexpansion
+
+* [feature]
+skip -literalpath test with asterisk in filename as that's not valid on Windows
+
+* [feature]
+added more variations of testsallow * to be used in registry path for remove-item (#4866)
+
+* [feature]
+allow * to be used in registry path for remove-item
+
+* [feature]
+address PR feedback
+have remove-item return error if -literalpath doesn't resolve to path
+
+* [feature]
+fix in navigation exposed an issue with WSMan Config Provider tests
+that require -Recurse to be used otherwise a confirmation prompt shows
+upChange behavior of Remove-Item on symbolic links (#621) (#3637)
+
+When 'Remove-Item' is used to remove a symbolic link in Windows, only the link itself is removed. The '-Force' switch is no longer required.
+If the directory pointed to by the link has child items, the cmdlet no longer prompts the user to remove the child items---those child items are not removed. The '-Recurse' switch, if given, is ignored.
+This brings 'Remove-Item' more in line with the behavior of the 'rm' command on Unix.Merge pull request #920 from PowerShell/removeitem
+
+Fixes removal of symbolic link on Windows
+
+And don't ask confirmation on LinuxEmpty string init and coalescing for various properties
+
+Closes #20171Microsoft.Data.Sqlite: Test against e_sqlcipher and winsqlite3Microsoft.Data.Sqlite: Lazy all the things!
+
+Fixes #17271:arrow_up: Update SQLitePCL.raw to 2.0.0
+
+Resolves #14824Clean up Microsoft.Data.Sqlite
+
+Part of #13833, fixes #14682, fixes #14947Microsoft.Data.Sqlite: Add LoadExtension() to SqliteConnection
+
+This also updates EFCore.Sqlite to use the new method.
+
+There is a breaking change in SpatialiteLoader. The methods used to take a DbConnection (I guess 'cause we could) but now take a SqliteConnection.
+
+You no longer need to call SqliteConnection.EnableExtensions() before using SpatialiteLoader since the new LoadExtension method will bypass the connection setting. This greatly improves usability and makes EnableExtensions only apply to the load_extension SQL function. Given this, EnableExtensions should probably have been a connection string keyword.
+
+In fact, SpatialiteLoader isn't really needed anymore since calling UseNetTopologySuite now loads the extension for open external connections. Filed #14821 to decide its fate.
+
+LoadExtension has some unusual behavior when the connection is closed. Any exceptions will be delayed until the connection is opened. There is no way to remove an extension you tried to load, so you'll have to create a new connection object to get back in a good state.
+
+Resolves #13826Microsoft.Data.Sqlite: Differentiate between "Foreign Keys=False" and the default
+Microsoft.Data.Sqlite: Persist CreateCollation, CreateAggregate, CreateFunction & EnableExtensions between close and re-open
+
+Part of #13826Reformat product codeMicrosoft.Data.Sqlite: Add Password, Foreign Keys, and Recursive Triggers connection string keywords
+
+Resolves #13828, part of #13826Sqlite: DataDirectory support in connectionstring path
+Merge branch 'release/2.2'Cosmos: Avoid reading default values from database (#21821)
+
+Resolves #21678Extract INavigationBase
+
+Part of #19003Merge pull request #16887 from dotnet-maestro-bot/merge/release/3.0-to-master
+
+[automated] Merge branch 'release/3.0' => 'master'Change name of ClrVersion parameter back (#11623)
+Fix coding style for NewModuleManifestCommand (#9134)
+Make New-ModuleManifest consistent with Update-ModuleManifest (#9104)
+Encoding for New-ModuleManifest on all platforms should be UTF-8 NoBOM (#5923)
+
+* encoding for new-modulemanifest on all platforms should be utf8nobom
+* fix testUpdated default ModuleVersion in ModuleManifest (#4842)
+
+* Updated default ModuleVersion in ModuleManifest to 0.0.1
+
+* updates tests where manifests default versions where still matched agianst the old 1.0 versionChange New-ModuleManifest encoding to UTF8NoBOM on non-Windows platforms (#3940)
+
+* Change New-ModuleManifest encoding to UTF8NoBOM
+
+* Addressed PR feedback
+
+* Fixed test for Travis CI
+
+* Updated testsNew-ModuleManifest was incorrectly checking if a Uri was well formed by using ToString() which just outputs the original (#3631)
+
+string.  If the string was a uri with spaces, ToString() doesn't return the escaped version.  The AbsoluteUri property
+should be used instead which returns an escaped absolute uri (if valid).
+
+Also renamed TestModuleManfest.ps1 to TestModuleManifest.Tests.ps1 so that it gets picked up correctly as Pester test.
+
+Since HelpInfoUri is just a string, ensure it is a valid absolute uri and escaped correctly whereas before it was just
+an opaque string that wasn't validated.Allow Web Cmdlets to Ignore HTTP Error Statuses (#10466)
+
+* Add -SkipHttpErrorCheck to web request cmdlets
+
+The -SkipHttpErrorCheck flag causes web request cmdlets
+(Invoke-WebRequest and Invoke-RestMethod) to ignore HTTP statuses that
+are error statuses and treat them as successful requests. This allows
+users to handle the responses using their own error handler and gives
+them access to the full, unmodified response body and headers.
+
+* Add -ResponseStatusVariable to Invoke-RestMethod
+
+This allows the user to specify a variable to set to the integer value
+of the respons's status code, Analogous to using
+-ResponseHeadersVariable to retrieve the headers of the response. This
+can be used to distinguish error messages from success messages when
+used with -SkipHttpErrorCheck.
+
+* Fix coding-style error
+
+The summary for the SkipHttpErrorCheck property didn't conform
+to style guidelines. This changes the summary to start with
+"Gets or sets".
+
+* Add tests for -SkipHttpErrorCheck
+
+This flag supresses terminating errors on web cmdlets.
+The tests are written to check that it properly
+supressed the errors.
+
+* Add test for -StatusCodeVariable
+
+Th -StatusCodeVariable parameter specifies an output
+variable for the status code with Invoke-RestMethod.
+This test makes sure it functions properly.
+
+* Fix typos and style for -SkipHttpErrorCheck tests
+
+Variables had different cases from each other and some parameter
+names were lower case.
+
+* Fix typos and style for -StatusCodeVariable test
+
+Variables had different cases from each other and some parameter
+names were lower case.
+
+* Add failure tests when missing -SkipHttpErrorCheck
+
+These tests ensure that Web Cmdlets fail when -SkipHttpErrorCheck
+is missing.
+
+* Clean up tests for -SkipHttpErrorCheck
+
+Per discussion on the pull requests. This commit fixes up
+style problems with the tests for -SkipHttpErrorCheck.
+
+* Add more status tests for -StatusCodeVariable
+
+Previously, the -StatusCodeVariable flag in Invoke-RestMethod
+only had tests for 200 status. This commit adds tests for 404
+and 500 statuses and removes -SkipHttpErrorCheck from the 200
+check.
+
+* Fix response body in -StatusCodeVariable test
+
+The test was copy/pastes from the 200 status test. The body
+indicated success. This commit fixes that so it is also an
+error indicator.Fix Web Cmdlets for .NET Core 2.1 (#6806)
+
+closes #6728
+Breaking change approved in #6728
+This PR switches the logic of when the Web Cmdlets handle redirects when the Authorization header is present. .NET Core 2.1 no longer sends the Authorization header by default (dotnet/corefx#26864). however, we introduced the ability to do so leveraging the previous default behavior through the use of the -PreserveAuthorizationOnRedirect switch.
+
+This PR also corrects a bug introduced 6.0.0 where certain redirect types redirect from POST to GET were set which should have passed through POST to POST and some were improperly passing through POST to POST which should have been doing POST to GET. This correction is a breaking change. It was made apparent as now the redirection behavior is being managed by CoreFX which is doing the correct behavior, tests were added for both when CoreFX and the Web Cmdlets manage redirection.Combine Web Cmdlet Partial Class Files (#5612)
+
+Reference #5610
+
+This moves the partial class into a single file each. This code is purposely not sorted and the formatting is left alone to make this easier to review. There are cleanup actions planned in the referenced Issue.#1456: add test case; add additional checks to ensure we only transform normal locals into using/foreach-localsFix #1131: Add a few safety null checks in TransformForeachOnMultiDimArray#1049: add back some decompiler settingsFix #979: Unrecognized foreach loop in unsafe codeRun CodeFormatter for Microsoft.PowerShell.Commands.Management (#9377)
+Merge pull request #2005 from icsharpcode/fix-1981
+
+Fix #1981: Ensure correctness of TDCU#1083: Initial implementation of named arguments.ILAst transform for named arguments.Rename BlockType to BlockKindMerge pull request #960 from icsharpcode/increment
+
+Improve handling of post-increment and compound assignmentsImplement ForEach-Object -Parallel feature (#10229)
+Minor code clean-up changes (#5737)
+Rename the 'id' property created by convention to '__id' to avoid it clashing with an entity property.
+Make sure that the property created by the convention is removed if any other property is mapped to id (the new property should get the value generator).
+Validate all properties have distinct database names
+Remove the value generator from the property mapped to id if it's part of the PK
+Escape | using ^ instead of /
+
+Fixes #17751
+Fixes #20665Query: Clean up in query filter to partition key detection (#20762)
+Cosmos: Detect partition key filters in queries (#20690)
+
+* Detect partitionkey w/ filter
+
+Co-authored-by: Jasper Hedegaard Bojsen <jasperhb@outlook.com>
+Co-authored-by: Andriy Svyryd <AndriySvyryd@users.noreply.github.com>Cosmos: Optimize Find without partition key
+Add event ids
+Make GetProperty public
+Fix bad merge
+
+Part of #17310Cosmos: Improvement to Find/FindAsync
+
+Allow ReadItem optimization when the Partition Key is known and Cosmos Resource Id is provided or Cosmos Resource Id can be generated based on the default generator or a custom generator.
+
+Fixes #17310Include key values in the update topological sort (#21556)
+
+Don't use entry sharing for entities with the same AK values
+Only remove the entry with duplicate key value from the identity map if it's still there
+
+Fixes #20870Add TPT support to model building, migrations and update pipeline
+
+Part of #2266Add complex mapping support to the update pipeline
+
+Part of #2266
+Fixes #20561Make key value factories public
+
+Fixes #20384
+
+Reasoning is that these factories seem quite stable and we have no re-used them in both in-memory and relational.Cleanup Relational for internal API usage
+
+Part of #15393
+
+Changes:
+- Suppress DatabaseFacadeDependencies related errors. Optimization which no otherprovider should need.
+- Suppress errors with DebugView & metadata comparers in relationl model.
+- Suppress NoopExecutionStrategy in RelationalExecutionStrategyFactory
+- Suppress FindDeclaredPrimaryKey in MigrationModelDiffer
+- Suppress errors related to valuefactories and InternalEntityEntry in update pipeline
+- Suppress errors related to temporary value generator in RelationalValueGeneratorSelector
+
+- Move SemanticVersionComparer to Relational
+- Move DbSetFinderExtensions, DbSetProperty, ConventionAnnotatable, Graph, IndentedStringBuilder to .Infrastructure
+- Move Multigraph, ReferenceEqualityComparer to shared internal
+
+- Remove DbSetProperty.IsKeyless - dead codeUpdate editorConfigCode cleanupAllow duplicate values for unique indexes.
+
+Fixes #11505Merge branch 'release/2.1' into devThrow better exception when supplying a non-unique value for a unique index
+
+Fixes #11062Improve SaveChanges circular dependency message
+Update transient error message
+Add sensitive data to the conceptual null exception
+Don't validate mapping for shadow properties created by convention
+Improve incompatible principal entity during fixup exception
+Correct property is already a navigation exception
+
+Fixes #8363
+Fixes #8365
+Fixes #9696
+Fixes #9817
+Fixes #10135
+Fixes #10856Add table splitting to the update pipelineExtend the update topological ordering over non-FK unique index values
+
+Fixes #7193Merge pull request #2260 from jsoref/spelling-public
+
+Fix spelling in public APIsMerge pull request #2259 from jsoref/spelling-debug
+
+Spelling debugMerge pull request #2354 from thecodejunkie/benchmark-request-headers-tweaks
+
+Performance tweaks for the RequestHeaders classMerge pull request #2055 from thecodejunkie/cached-request-header-parsing
+
+Added cache for parsed header values that contains a quality valueMerge pull request #1259 from liddellj/mediarange-params
+
+Adding support for media range parametersChanged decmilar parsingMerge pull request #980 from grumpydev/ExtendedAcceptHeaderFix
+
+Extended accept header fixMerge pull request #476 from thecodejunkie/acceptlanguagebug-474
+
+Improved the RequestHeaders classFormatting: remove duplicate semicolons (#12666)
+Use wider columns for process id and user (#5303)
+
+I also moved all the formatting code higher up in the tree, it never felt like it belonged where it was.Merge pull request #1061 from PowerShell/andschwa/merge-sd
+
+Merge changes from [SD:709766]Fix path sizeSimplify setting namesAdded angle support to text drawingAdded gradient support to text shadowCheck is gradient visibleCheck for alpha before drawingFix gradient rectangleAdded text shadow drawingAdded text outline drawingInitial work for new text image effectMerge branch 'dev'Merge branch 'dev'Merge branch 'dev'Merge branch 'dev'Merge branch 'dev'Merge pull request #3250 from acjh/patch-28
+
+Don't save property history for EntityChange.EntityIdMerge pull request #2852 from acjh/issue-2844
+
+Support a Reason property in EntityChangeSetMerge pull request #2845 from acjh/issue-2844
+
+Entity History improvementsMerge branch 'pr/2835' into devTransition ActionPreference.Suspend enumeration value into a non-supported, reserved state, and remove restriction on using ActionPreference.Ignore in preference variables (#10317)
+Make `ConvertTo-Json` treat `[AutomationNull]::Value` and `[NullString]::Value` as $null (#10957)
+Use the OperationCancellationException to replace the StoppingException in 'ConvertToJson' (#8920)
+Refactor ConvertTo-Json to expose `JsonObject.ConvertToJson` as a public API (#8682)
+
+We have the public API `JsonObject.ConvertFromJson` to convert from JSON string in the PowerShell context. It would be good to have a public API for conversion to JSON. This PR refactors the `ConvertTo-Json` cmdlet to move the core implementation to `JsonObject.ConvertToJson`, and make `ConvertTo-Json` call that public method.
+
+This would help the Azure Function PowerShell worker. Currently, we depends on [calling the cmdlet](https://github.com/Azure/azure-functions-powershell-worker/blob/729710d2595b4b96abd4fa5a5547fe880e98bfa6/src/PowerShell/PowerShellManager.cs#L198-L205) to convert object to JSON which is expensive. Once we have the public method `JsonObject.ConvertToJson` exposed, we can call the API directly to avoid a command invocation.Query: Add logging (#21924)
+
+Part of #17498
+
+Added messages
+- Starting query compilation
+- Navigation included
+- Skip/Take without order by (infra is in core but providers use to generate the warning)
+- First without order by or predicate  (infra is in core but providers use to generate the warning)
+
+Removed messages
+- Include ignored (they get removed due to automatic pruning based on expression tree visitation
+- Obsolete exception with aggregate operator in relational. We logged that when doing client eval of aggregate operation
+- Optimized query model - there is no more optimization phase.
+
+Other fixes
+- Don't log parameter values in Cosmos when sensitive data logging is not enabled.Merge branch 'release/3.1'Cosmos API review changes
+
+* Made `GetCosmosPartitionKeyStoreName` internal
+* `GetCosmosDefaultContainerName` -> `GetCosmosDefaultContainer`
+* Remove `Cosmos` from public namespaces to align with core
+* Make types internal to align with other providers
+
+Also, enabled API consistency tests and added some doc commentsCosmos: Add embedded collection support
+Flatten out shaper expression visitors
+Don't expand owned collection
+
+Fixes #16620
+Part of #12086Cosmos: Implement query pipelineFix lgtm issues (#8843)
+
+Add some null checks
+Remove unused codeAdded Meta, Charset, and Transitional parameters to ConvertTo-HTML (#4184)
+Remove some of the last AppVeyor references (#8867)
+
+ 
+This removes some of the last mentions of the AppVeyor name.  Don't change the title, we don't want the word to appear in the CLs
+Also problem: the last references are in the changelogs but I don't want to modify them without committee approval.  
+
+## PR Context  
+
+it was removed, #8686 Refactor module code related to 'Get-Module -ListAvailable' (#7145)
+
+* The major refactoring changes are:
+- In `ModuleIntrisic.cs`, remove unneeded Windows-PowerShell-only code.
+- In `ModuleUtils.cs`
+   - use the new API `Directory.GetDirectories(string path, string searchPattern, EnumerationOptions enumerationOptions)` and `Directory.GetFiles(string path, string searchPattern, EnumerationOptions enumerationOptions)` to enumerate files and sub-directories within a directory path.
+   - remove the unused parameter `bool force` from `GetDefaultAvailableModuleFiles(bool force, bool isForAutoDiscovery, ExecutionContext context)`
+   - refactor the method `GetModuleVersionsFromAbsolutePath`. Add more comments and rename the method name.
+- In `ModuleCmdletBase.cs`, refactor the method `GetModuleForNonRootedPaths` to `GetModuleForNames` to simply its implementation.
+- In `PSModuleInfo.cs`
+   - group the declarations of `Declared*Exports` fields together
+   - rename `_detected*Exports` fields to `Detected*Exports` to group them together. They are internal fields and used outside `PSModuleInfo`.
+
+* There is some perf improvement after this refactoring change:
+- For `Get-Module -ListAvailable`, there is about 36% speed improvement for 94 default modules.
+- For `Get-Module -ListAvailable -All`, there is about 14% speed improvement for totally 600 module files.
+- For `Get-Module <name> -ListAvailable -List`, there is over 17x speed improvement for finding 13 modules from 600 modules. This is because we now filter names using the module file before creating a `PSMdouleInfo` object.Merge pull request #1476 from PowerShell/andschwa/iscore
+
+Rename IsCore to IsCoreCLRUpgrade to Cosmos SDK V4
+
+Fixes #18753Expose more CosmosClient options
+
+Use default connection mode by default
+
+Fixes #19342
+Fixes #19492
+Fixes #18479Add an overload to UseCosmos that takes a connection string
+
+Fixes #20712Merge branch 'release/3.0'Update Cosmos SDKBreak out metadata/info about an extension from the interface
+
+Also stop calling ApplyServices to find out if an extension is a database provider.
+
+Fixes #16119
+Fixes #16045
+
+Doing this refactoring because we keep having to add/change methods here, so putting them in a composed abstract base class to avoid breaking the interface each time.Query: Assign types for SqlExpression correctly
+
+Resolves #19990
+When inferring type mapping, use inferred type mapping's clr type to determine resulting sqlExpression's type.Query: Make translation of Coalesce SqlFunction
+
+Resolves #19227Use temp personal path at Runspace startup when env 'HOME' not defined (#13239)
+Some code cleanup work (#10698)
+
+* Move Utils.GetUserConfigurationDirectory to Platform.ConfigDirectory
+* Unify the use of Platform.ConfigDirectory and Platform.CacheDirectoryCleanup '#if CORE' in CorePsPlatform.cs (#4415)
+Fix crash at startup when env:HOME not set (#3437)
+
+There are cases like using PowerShell via Puppet where the account being
+used does not have a home directory.  Updated PowerShell to use a process
+specific temporary directory if HOME, CONFIG, CACHE, and DATA directories
+are not available.  Temporary directory is removed when last runspace
+is disposed.Allow profile directory creation failures for Service Account scenarios (#3244)
+
+XDG profile directory creation can fail for accounts that do not have home directories.
+
+The module analysis was trying to persist it's cache in an XDG profile directory.
+The cache is less critical than it once was, so it's reasonable to not cache if there is no good place to do so.
+
+Fixes #3011Merge pull request #1721 from PowerShell/dongbo/module-path
+
+Address the side-by-side module path for OPSMerge pull request #1384 from PowerShell/andschwa/platform-cleanup
+
+Platform cleanupMerge pull request #1282 from PowerShell/quoct/fixnugetprovider
+
+Expose Platform API from SMA and uses that in NuGetProviderMerge pull request #1060 from PowerShell/xdg
+
+XDG Changes
+I like these tests much better now - far easier to follow* Fix #920: [Bug]Click one reference will navigate to another.
+* Add references to constructors of builtin types (decimal and string).ICSharpCode.Decompiler: Merge changes from SharpDevelop to ILSpy.Implement Get-Random -Count without specifying an InputObject list (#9111)
+Clean up Get-Random cmdlet (#9133)
+Make SemanticVersion compatible with SemVer 2.0 (#5037)
+
+Made 'SemanticVersion' compatible with SymVer 2.0 http://semver.org/ (p.10)
+- Fix comparisons
+- Refactor and add more testsRelax SemanticVersion constructors to not require minor and patch (#3696)
+
+`$psversiontable.psversion -gt "3.0"` which is used by PowerShellGet to determine if a module is compatible with the current version of PowerShell.
+
+Change is to allow specifying only major or major+minor where the missing segments default to zero by providing overloaded constructors and allow
+the string parsing method to not require major, minor, and patch segments to all be specified (only major is required).
+
+Based on the [response](https://github.com/mojombo/semver/issues/368) from the maintainer of semver, there is no requirement to have strict
+conformance for the inputs to the constructor and allowing "3.0" to result in a semver of 3.0.0 is reasonable.Merge pull request #1523 from lzybkr/semver
+
+SemverFix flags+ILRange in ProxyCallReplacer.Fix #1660: Generic proxy calls should use the callee's type parameter substitution, not the caller's.Merge pull request #1586 from icsharpcode/local-functions
+
+C# 7.0 Local functionsOptimize ProxyCallReplacer: ignore calls to static methods as those can never be a call to a proxy.
+Enable FixProxyCalls test for rosyln+optFix #1443: ProxyCallReplacer replacing non-proxy-calls with arbitrary calls.#1292: Fix some more problems with pinned locals.
+
+Let's distinguish between the original pinned locals and the PinnedRegion locals.
+The format need declarations if any are left over after transformations; the latter don't.Emit debug info for display class locals, so that the debugger can show the values of captured variables.Clarify the meaning of ILVariable.IndexFix missing VariableKind in ILVariable.WriteDefinitionToFix for `Get-Content -ReadCount 0` behavior when `-TotalCount` is set (#10749)
+Merge branch 'PR1258'Improve block ordering in ConditionDetection using the ILOffsets of Leave instruction argumentsMerge pull request #1176: Improve control flow decompilationInline variable declarations/modernize parts of our code base.Fix #1404: local variables with init flag are not declared in the correct scopeUse out variable declarations where possible.Fix #893: Local variable name highlighter sometimes only finds subset of usagesFix DeclareVariables.FindInsertionPoint not treating lambda bodies as capture scopesFix incorrect name check when autoloading required modules (#8218)
+replace the word `hang` with something more appropriate (#5358)
+tab expansion not working correctly for some parameters (#3364)
+
+There was off by one error causing an `IndexOutOfRangeException` during parameter name completion.Adding more ETW logs to wsman plugin (#12798)
+Style: Change 'Byte{}' to 'byte[]' (#8525)
+Do not pass ArgumentAst to CreateArgument for -encodedarguments (#5836)
+
+When calling powershell from powershell (called the minishell for historical reasons), the arguments are passed as a base64 encoded string.
+
+The native command parameter binder was trying to match up the ast to the argument value, which in this case, doesn't make sense.
+
+The fix is to ignore the ast during parameter binding for this case of calling powershell from powershell.
+
+Fix #5733 Rework passing array literal to native commands (#5301)
+
+Use Ast for context in parameter binding
+
+Previously we used IScriptPosition for context (e.g. error reporting)
+during parameter binding, but in some cases we want more information, so
+we'll use the Ast instead.
+
+This change just adds the Ast, it doesn't make explicit use of it.Merge pull request #1295 from Chicken-Bones/switchdetection
+
+Abort SwitchAnalysis on duplicate condition (redundant code)Merge branch 'release/3.0'Fix reference nested owned entities in queries.
+
+Part of #12086Query cleanup: Avoid static parametersReduce string allocation in console output code (#6882)
+Style: Use the type aliases 'char' and 'bool' instead of 'Char' and 'Boolean' (#8572)
+Style: Change 'Object' to 'object' (#8522)
+Use nameof() in bound parameters.contains key() (#7908)
+
+Replace code like BoundParameters.ContainsKey("Delimiter") with BoundParameters.ContainsKey(nameof(Delimiter)). Old pattern come from old C# (<6.0) without nameof().Add RemoveDeadStores optionReset HasInitialValue flag after TransformDisplayClassUsage.Merge pull request #1561 from icsharpcode/mcs
+
+Improved support for closures generated by Mono C# compilerHandle Comp in InferType().Merge pull request #1129 from icsharpcode/userdef-compound-assignment
+
+Userdef compound assignmentAdd RemoveDeadCode optionMerge pull request #900 from icsharpcode/fsharp_using
+
+Implement F# Using: Fixes #670: [Feature Request] Detect F# using patterns when decompiling to C# resolved #3458: return true in AbpNHibernateInterceptor's OnFlushDirty method when audited properties are updatedMerged docs.Modified audit property setters to better work in a database per tenant architecture.Merge branch 'master' of https://github.com/aspnetboilerplate/aspnetboilerplate.git #767: Created a seperated IHasDeletionTime interface.#767: Created a seperated IHasModificationTime interface.Resolved #751: Implement EntityCreating, EntityUpdating, EntityDeleting and EntityChanging events.Resolved #40: Allowed to change getting DateTime.Now by creating Clock class.Resolved #376: EntityDeletedEventData is not triggered for soft-delete entitiesImplemented #376 for EntityFramework.Implemented entity change events for also nhibernate.Typo fix.Resolved #128.Completely changed locations of projects. Changed package names.
+Resolved #110, #124, #125 and #127.Added IDeletionAudited. Resolved #45.NHibernate auditing. Resolved #48.RevEng: Generate lambda with good identifiers (#21946)
+
+Resolves #21520Merge branch 'release/5.0-preview8'Refactor annotation code generation (#21329)
+
+Closes #16922
+Closes #15675Add support for seed data for entity types using table sharing where the principal is using TPT
+Sort table mappings consistently
+Remove discriminator-related facets completely when using TPT
+Simplify SharedTableEntryMap
+
+Part of #2266Allow to map an entity type to both a table and a view.
+
+Fixes #17270
+Fixes #15671Add view support to the relational model API
+Use the new model in the query pipeline
+
+Fixes #12846Add a relational model API
+Use the new model in migrations and update pipeline
+
+Part of #12846, #2725, #8258, #15671, #17270Fix propagation of fixed length facet
+
+Fixes #18961
+Fixes #14163Test reverse engineering column commentsAdd XML docs for convention classes.
+
+Part of #214Make conventions public
+Use a parameter object for all convention constructors and IModelSource.GetModel()
+Move ValidationConvention to ProviderConventionSetBuilder
+
+Part of #214
+Part of #15662Add relational metadata extensions for conventions.
+Refactor relational metadata extensions to be directly defined on the metadata objects.
+Move conflict resolution between store generated configuration to a convention. Explicit conflicting configuration will now result in an exception.
+Mark UseSqlServerIdentityColumn() as obsolete in favor of ForSqlServerUseIdentityColumn()
+
+Part of #214[For preview 5] Force database providers to register a LoggingDefintions
+
+By making the base classes abstract and never registering them as defaults in D.I.
+
+Fixes #15414Add public metadata API for conventions.
+Change some interface members to extension methods.
+Remove GetOrAdd* extension methods.
+
+Part of #214
+Fixes #11579Reduce provider dependency on internal code
+
+Specifically, refactoring around IRelationalCommand and its interactions so that command building can be overridden without using internals. See issue #11409.
+
+Also, fixes #14923 by taking the logger from SelectExpressionDependencies, which is now scoped.
+
+Made public:
+* RelationalAnnotationsBuilder
+* GetDeclaredForeignKeys
+* GetDeclaredNavigations
+* GetDeclaredProperties (Make sure also for IMutable types...)
+* GetDeclaredServiceProperties
+* GetDeclaredIndexes
+* DisplayName (IEntityType extension)
+* ShortDisplayName (System.Type extension)
+* GetPropertyAccessList
+* RemoveConvert
+* ConfigurationSource
+* CoreAnnotationNames
+* GetAllBaseTypesInclusive
+* Property.Format (made extension method on IEnumerable<IPropertyBase>
+* FindPrincipal
+* ScaffoldingAnnotationNames
+* FindSharedTableRootPrimaryKeyProperty
+* RelationalCommand
+* RelationalCommandBuilderFactory
+* RelationalCommandBuilder
+
+Stopped using in providers:
+* IndentedStringBuilder
+* NonCapturingLazyInitializer
+
+Removed:
+* RelationalParameterBuilder
+
+Also added new parameter objects as needed.
+
+Did not touch the majority of the conventions API. Also, left most query APIs.Allow configuration of logging level for specific events
+
+Issue #14970
+
+Example API:
+```C#
+protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    => optionsBuilder
+        .UseInMemoryDatabase("MyDb")
+        .ConfigureWarnings(c => c.Log((CoreEventId.CascadeDelete, LogLevel.Warning)));
+
+```
+
+Mitigates the breaking change of #14523.
+
+Also, makes initialization of logging definitions lazy. We have quite a lot and eagerly initializing all of them the first time any string resource is used was bothering me.
+
+Also, stopped including Exception in logging definition since this causes the stack trace to be included in the log even if the exception has been handled. The exception is still available in diagnostics.Merge branch 'release/3.0-preview3'Make ILoggerFactory a scoped service
+
+Issue #14698
+
+Main changes:
+* ILoggerFactory is still captured in AddDbContext, but as a wrapped scoped factory
+  * Same thing can be done with UseLoggerFactory
+  * No longer pathological to pass a different instance each time
+* IMemoryCache is no longer captured from AddDbContext
+  * Can still be passed to UseMemoryCache
+* IRawSqlCommandBuilder and IMigrationsSqlGenerator have been made scoped
+* Validation and query compilation, method call translators, and a few more now accept the logger to useRemove obsolete Migrations and RevEng APIs
+
+Resolves #13292, part of #12835RevEng: Test navigationsRevEng: Reuse ICSharpHelper
+
+Fixes #10134, part of #8853Design: Refine code generation APIs
+
+This removes the concept of the programming language from the provider APIs.RevEng: Scaffold annotations for key found by convention/annotation
+
+(also broke long lines)
+
+Resolves #9530Merge branch 'feature/2.0.1' into dev
+
+# Conflicts:
+#	src/EFCore.Relational/Migrations/Internal/MigrationsModelDiffer.cs
+#	test/EFCore.Relational.Tests/Migrations/Internal/MigrationsModelDifferTest.csRevEng: Pass in correct arguments to ScaffoldingTypeMapper
+
+- Infer keyOrIndex & rowversion for DatabaseColumn
+- Flow ConcurrencyToken annotation from database model to generate ConcurrencyToken()
+- Generate IsRowVersion() for rowversion columns on SqlServer
+- Do not put name annotations for index/FK with default name
+- Add empty line at the end of DbContext to make it consistent with other generated code
+- Normalize timestamp/rowversion to rowversion on SqlServerMerge branch 'rel/2.0.0-preview2' into devMerge branch 'rel/2.0.0-preview2' into devMerge branch 'rel/2.0.0-preview2' into devRename sources to fit new naming scheme for 2.0 (#3533)
+
+* Rename all source projects and assemblies to conform with the new planned naming for 2.0
+* Sort InternalsVisibleTo for easier maintainability
+Note: NuGet package IDs were not yet renamed in this passImprove ExecuteWithRetries helper (#2972)
+
+ExecuteWithRetries now rethrows the last exception on timeoutInitial pass at converting AsyncExecutorWithRetries from recursion to a loop. (#2535)
+Cleanup of Orleans logging layer. (#1844)
+
+TraceLogger has been broken into three classes and deprecated. It is still maintained mainly to support programmatic log configuration until customers can migrate to the new pattern.
+ - LoggerImpl replaces TraceLoggers logger implementation role. It is internal and all public api surfaces now use Logger.
+ - LogManager replaces TraceLoggers support of programmatic logging settings.
+ - LogFormatter replaces TraceLoggers log formatting utility functions.Merge pull request #528 from ReubenBond/feature-runtime-codegen
+
+Feature: Runtime Code GenerationMerge pull request #914 from jason-bragg/StreamDeliveryRetryBugFix2
+
+Stream delivery retry bug fix.Merge pull request #196 from gabikliot/ClientRegistration-InDirectory-merged
+
+Register client pseudo grain id in the grain directory.Initial commit of Project Orleans sources.CodeGen: combine cache file with args file and fix incremental rebuild (#6266)
+Upgrade to .NET Core 3.0-preview9 release train (#5943)
+Handle case where applocker test script fails to delete (#8627)
+
+One reported case where during applocker policy check, the test script that is created cannot be deleted because something else (malware scanner?) has a lock on the file.  This results in an exception being thrown in finally block which ultimately causes PowerShell to crash due to the unhandled exception.  Fix is to wrap the deletion in the finally block with try..catch and ignore any exceptions and leave the temp file.
+
+TFS:20156282Merge pull request #1452 from PowerShell/vors/remove-links
+
+Remove unusable links from the source codeMerge pull request #2363 from lzybkr/maxvars
+
+Remove most Maximum* capacity variablesAdd support for parsing Link Header with variable whitespace (#7322)
+
+Fix is to change the regex to allow for variable or no whitespace and associated tests to handle these two cases. Replace HttpListener Link Header Tests with WebListener (#5806)
+
+- Add Link controller to WebListener
+- Replace HttpListener Link tests with WebListener
+- Update WebListener Documentation
+- Enable cross-platform multiple Link header tests#1407: Set CSharpInvocationResolveResult.IsExtensionMethodInvocation flag after extension methods transform.#907: CallBuilder: If type arguments cannot be inferred from the parameter list, add them before asking overload resolution, but remove them again, if it does not reduce the number of casts.Introduce named arguments only in the statement transform.
+
+Don't use extension method syntax when 'this' parameter of
+extension method is named.Fix #1093: Remove usage of type or this qualifiers, when possible.Fix #1080: Invalid null propagation decompilation with ambiguous extension method callSimplify context handling in IntroduceExtensionMethodsFix #956: Incorrect extension method decompilationStreamline Dictionary use and remove some dead code (#6439)
+Improve TLS troubleshooting experience (#6352)
+Added ability to skip client TLS authentication. (#6302)
+Multi-target TLS connection middleware to netcoreapp3.1 and netstandard2.0 (#6154)
+
+Co-authored-by: juyuz-dev <juyuz@microsoft.com>Add TLS middleware with sample (#6035)
+Remove the no longer used `RunspaceConfigurationEntry` types (#8424)
+Allow root node of format.ps1xml to have attributes that are ignored (#7987)
+In local invocations do not require `-PowerShellVersion 5.1` for `Get-FormatData` in order to see all format data. (#11270)
+Fix logic to not rely on build number to determine whether to output formatdata (#8063)
+Revert "Throw error on entering non-existing type in Get-FormatData (#7434)" (#7546)
+
+Revert "Throw error on entering non-existing type in Get-FormatData (#7434)
+This reverts commit b754cd80d59b4886a95b59c543bc6a744f46f3c5.
+
+Per this comment https://github.com/PowerShell/PowerShell/pull/7434#issuecomment-413696259Throw error on entering non-existing type in Get-FormatData (#7434)
+
+Write non-terminating error when `Get-FormatData` doesn't found a type definition for the provided type,Add `-Stable` to `Sort-Object` and related tests (#7862)
+Added -Top/-Bottom params to Sort-Object for Top/Bottom N sort and many Pester tests (#2518)
+
+* Added -Top/-Bottom params to Sort-Object for Top/Bottom N sorts; added many Pester tests
+
+* updated changelog
+
+* updated CHANGELOG.md
+
+* replaced Get-Service with Get-Alias in Pester tests
+
+* improved performance for -unique -top/-bottom, changed according to PR feedback
+
+* added newlines to end of two files
+
+* Removed whitespace changes
+
+* Missed 2 whitespace changes to undo in last commit
+
+* Updated to try to resolve merge issue
+
+* change heapify return type, cleaned up test code
+
+* unique top/bottom N sorts are now 2-3 times faster
+
+* code cleanup (removed unused vars, simplified logic)fixed #1603: Fix $uploadtime issue, bug fix releaseUse upload duration for $uploadtime instead of task durationRename upload duration to task durationAdded thumbnail to uploadinfoparserToast window now supports only text toofixed issue #8: Uploaders config form index validationfixed crash when user deselects "Upload image to remote host" in "After capture tasks".
+
+ShareX now shows local file path if remote URL does not exist.#4336: Fix B2 URL previewMerge pull request #4258 from atajsic/master
+
+Update BackblazeB2.csfixed #4110: Encode B2 result file nameAdded UploadHelpers classUse type on declarations instead of var for consistency with rest of codeMerge pull request #3637 from tinybarks/implement-backblaze-b2
+
+Implement Backblaze B2 uploaderMerge pull request #1850 from icsharpcode/issue1848
+
+Additional settings #1848Add minimal support for C# 7 discards in out var declarations.Fix assertion fail in DeclareVariables: Make sure that we do not try to declare variables in non-assignment contexts.Cleanup: ThreadAbortException is now in .Net Core 3.0 (#10230)
+
+* Cleanup: ThreadAbortException is now in .Net Core 3.0
+
+* Fix CodeFactor issue
+
+* Remove ThreadAbortException
+
+* Remove ThreadAbortException relared codeMultiple improvements by CodeRush Static Analysis (#5132)
+cleanup: Use coalesce expression (#12829)
+Get-Help does not work in JEA sessions (#2988)
+Adding '$pshome/cultureName/default.help.txt' to PowerShell Windows Core project.  (#3032)
+
+* Adding PowerShellHelpFiles package which contains default.help.txt to powershell-win-core
+
+* Adding test case to validate that <pshome>/<culture>/default.help.txt is present. This is done by calling 'Get-Help'
+
+* Updating get-help to skip searching for the help file when the InternalTestHooks.BypassOnlineHelpRetrieval is enable. This way, we force get-help to generate a metadata driven help object, which includes a helpUri that points to the fwlink defined in the cmdlet code.
+
+* Updating get-help -online <cmdletName> tests to not delete the help files. Instead, I've added logic to get-help to not find the help file when the test hook BypassOnlineHelpRetrieval is enable.Allow user-specified underlying type for enums (#8329)
+
+Fix #8028 
+
+This change adds support for specifying the underlying type for an enum:
+
+```powershell
+enum MyEnum : long 
+{
+  A = 0x0FFFFFFFFFFFFFFF
+  B
+}
+# or
+enum MyByte : byte 
+{
+  A = 0x01
+  B = 0x02
+  C = 0x03
+  D
+}
+```Change the 'SaveError' method in Parser to use `nameof` for error ids (#6498)
+
+Many error messages in PowerShell currently use a LINQ expression to pass both the name of the error and the message through in the error processing. This PR uses the `nameof` feature to carry the error name/ID and gets rid of LINQ expression reflection, hopefully improving performance, especially in editor scenarios.Add support <Suppress> in Get-WinEvent -FilterHashtable (#2506)
+
+* Add support <Suppress> in Get-WinEvent -FilterHashtable
+
+1. Add support <Suppress>
+2. Refacrtoring BuildStructuredQueryFromHashTable() to use StringBuilder
+3. Add tests
+
+* ChangelogFix Get-WinEvent -FilterHashtable to work with named event data field (#2373)
+
+Fix Get-WinEvent -FilterHashtable to work with named event data field
+
+Now FilterHashtable parameter in Get-WinEvent for named data field:
+1. generates a valid query, ex. @{Logname="System";Param="a"}
+2. generates a valid query for multiple values, ex.
+@{Logname="System";Param="a","b"}
+
+Also removed double cast in the original code and added more tests to cover the fixed scenarios.Merge pull request #1111 from PowerShell/cchen/diagnostics
+
+adding microsoft.powershell.diagnostics.dll to buildAdd back `Get-Counter` cmdlet for Windows (#10933)
+Implement performance-counter cmdlets for Windows CoreCLR
+
+Code changes per PR code review - 3Merge branch 'release/2.2'Introduce a deterministic order based on key values to entities being saved
+
+Fixes #6666add arithmetic operators for Sqlite
+
+- ef_negate
+- ef_add
+- ef_divide
+- ef_multiply
+- ef_subtract by ef_add and negated subtrahendSQLite: Enable comparison of decimals
+
+Part of #19635SQlite: Fix modulo on floating-point values
+
+Fixes #19687, part of #19635SQLite: Make SqliteDbContextOptionsBuilder.CommandTimeout() also set SqliteConnection.DefaultTimeout
+
+Fixes #18607Allow shorter signed hex literals with appropriate type suffixes (#11844)
+Support ternary operator in PowerShell language (#10367)
+Fix minor style issues come from last commits (#9640)
+Support line continuance with pipe at the start of a line (#8938)
+
+Expands line continuance for pipelines to allow lines to continue automatically without backticks with the pipe symbol at the start of a line.
+This adds to the existing functionality where pipes can be used to continue lines by placing them at the end of a line.Add Binary Parsing Support & Refactor TryGetNumberValue & ScanNumberHelper (#7993)
+
+Fixes #7557 
+
+* Adds support for binary parsing in format echoing hex: `0b11010110`
+  * Works with all existing type suffixes and multipliers.
+  * Supports arbitrary length parsing with `n` suffix using BigInteger; details below.
+* Adds `NumberFormat` enum to specify hex/binary/base 10 for the tokenizer, replacing old `bool hex`.
+* Adds `n` suffix for all numeric literals to support returning value as a `BigInteger` if requested. This bypasses the issue of large literals losing accuracy when they cast through `double`.
+* Adds tests for all new behaviours.
+
+---
+
+### Binary / Hex Parsing Implementation
+
+* Mimics old sign bit behaviour for int and long types. Sign bits accepted for 8 or 16-bit Hex parsing, and 8, 16, 32, 64 for binary.
+  * i.e., `0xFFFFFFFF -eq ([int]-1)` and `0xFFFFFFFFFFFFFFFF -eq ([long]-1)`, but suffixing `u` creates `int.MaxValue` and `long.MaxValue`, respectively, instead.
+* Sign bits higher than this are accepted for bigint-suffixed numerals:
+    * Hex: Bigint-suffixed hex treats the high bit of any literal with a length multiple of 8 as the sign bit
+    * Binary: Bigint-suffixed binary accepts sign bits at 96 and 128 chars, and from there on every 8 characters.
+    * Prefixing the literal with a 0 will bypass this and be treated as unsigned, e.g. `0b011111111`
+* Specifying an `u`nsigned suffix (or combination suffix that includes `u`) ignores sign bits, similar to how parsing a hex string using `[Convert]::ToUint32()` would do so.
+* Supports negating literals using `-` prefix. This can result in positive numbers due to sign bits being permitted, just like hex literals.
+
+---
+
+### Refactored numeric tokenizer parsing
+
+**New flow:**
+
+1. Check for `real` (`.01`, `0.0`, or `0e0` syntaxes)
+    1. If the decimal suffix is present, TryParse directly into decimal. If the TryParse fails, TryGetNumberValue returns `false`.
+    2. TryParse as `Double`, and apply multiplier to value. If the TryParse fails, TryGetNumberValue returns `false`.
+        1. Check type suffixes and attempt to cast into appropriate type. This will return `false` if the value exceeds the specified type's bounds.
+        2. Default to parsing as `double` where no suffix has been applied.
+2. Check number format.
+    * If binary, manually parse into BigInteger using optimized helper function to directly construct the BigInteger bytes from the string.
+    * If hex, TryParse into `BigInteger` using some special casing to retain original behaviours in int/long ranges.
+    * If neither binary nor hex, TryParse normally as a `BigInteger`.
+3. Apply multiplier value before attempting any casts to ensure type bounds can be appropriately checked without overflows.
+4. Check type suffixes.
+    * If a specific type suffix is used, check type bounds and attempt to parse into that type.
+      * If the value exceeds the type's available values, the parse fails. Otherwise, a straight cast is performed.
+5. If no suffix is used, the following types are bounds-checked, in order, resulting in the first successful test determining the type of the number. 
+    * `int`
+    * `long`
+    * `decimal` (base-10 literals only)
+    * `double` (base-10 literals only)
+    * ~~`BigInteger` for binary or hex literals.~~ If the value is outside `long` range (for hex and binary) or `double` range (for base 10), the parse will fail; higher values must be explicitly requested using the `n`/`N` BigInteger suffix.
+
+---
+
+*This is a breaking change* as binary literals are now read as numbers instead of generic tokens which could potentially have been used as function / cmdlet names or file names.
+
+Notes:
+* Binary literal support was approved by the committee in #7557 
+* ~~The same issue is still under further discussion for underscore support in numeric literals and whether BigInteger parsing ought to be exposed to the user at all.~~
+    * ~~Supporting underscore literals is a further breaking change causing some generic tokens like `1_000_000` to be read as numerals instead.~~ Per @SteveL-MSFT's [comment](https://github.com/PowerShell/PowerShell/pull/7993#issuecomment-442651543) this proposal was rejected.
+    * ~~Removing underscore support or preventing standard parsing from accepting BigInteger ranges is a relatively trivial matter. It is my personal opinion that there is no particular reason *not* to hand the user a BigInteger when they enter a sufficiently large literal, but I will defer to the PowerShell Committee's judgement on this.~~
+Add C#-style type accelerators and suffixes for ushort, uint, ulong, and short literals (#7813)
+
+[breaking change]
+Add the following type accelerators: [short], [ushort], [uint], [ulong].
+Add the following numeric literal suffixes:
+ - 'u' suffix (uint/ulong)
+ - 's' suffix (short)
+ - 'ul' suffix (ulong)
+ - 'us' suffix (ushort)Implement Unicode escape parsing (#3958)
+
+* Implement Unicode variable width `u{xxxxxx} escape sequences.Fix here string '`$a=@`"`n'`"'`n`"@' (#2913)
+
+The tokenizer did multiple scans the script line to get tokens. Before
+the fix the tokenizer on the first pass examined that string as
+double-quoted (Expandable) string not as here string, figured the
+average double quotation mark as a closing and then starting with the
+single quotation mark continued processing the line as single-quoted
+string which had no closing single quotation mark.
+The fix is to stop the first scan pass after getting '=' (assume
+assignment-expression '$a=' for next pass).Use span-based overloads (#11884)
+Refactor CompletionCompleters.cs to avoid constructing unnecessary CompletionContext instances (#4048)
+
+Fix about_* topic help issues and a few tab completion regressions (#4014)
+Allow `CompleteInput` to return results from `ArgumentCompleter` when `AST` or Script has matching function definition (#10574)
+Enforce the 'CompatiblePSEditions' check for modules from the legacy 'System32' module path (#7183)
+
+- Add `%WINDIR%\System32\WindowsPowerShell\v1.0\Modules` (Windows PowerShell $PSHOME) to the end of the default PSCore 6 module path (i.e. the module path as initially set at startup).
+- Cause an error to be thrown by `Import-Module` when a module with `CompatiblePSEditions` not containing `"Core"` is being loaded from the 'System32' module path.
+- Suppress output of modules listed by `Get-Module -ListAvailable` from Windows PowerShell $PSHOME when `CompatiblePSEditions` does not contain `"Core"`.
+- Introduce the `-SkipCompatibilityCheck` switch parameter on both `Import-Module` and `Get-Module` to respectively allow importing incompatible modules and listing incompatible modules.
+- Adds a  `PSEdition` column to the `PSModuleInfo` table view format.
+- Ensures that completions are not given for incompatible modules on the System32 module path.Add 'ArgumentCompletionsAttribute' to support more argument completion scenarios (#4835)
+
+- Add 'ArgumentCompletionsAttribute' to support argument completion for parameters that cannot have a ValidateSetAttribute.
+- Use 'ArgumentCompletionsAttribute' for the '-Format' parameter of 'Get-Date' to enable useful argument compeltions.Add tab completion for Select-Object -ExcludeProperty -ExpandProperty (#3443)
+Fix #1336: multi-dimensional array initializers with custom objects not detected.#1336: Add limit in HandleSimpleArrayInitializer.Fix `New-Item` to create symbolic link to relative path target (#12797)
+Fix FileSystem provider error message (#11741)
+Minor FileSystemProvider cleanup (#9182)
+Fix CodeFactor brace style issues in FileSystemProvider (#8992)
+Fix many instances of CodeFactor style issue `A single-line comment must not be followed by a blank line` (#8825)
+Cleanup: replace 'Utils.FileExists()/DirectoryExists()/ItemExists()' with .NET methods (#7129)
+Avoid calling native APIs to check for existence of FileSystem items (#6929)
+
+- Use File.GetAttributes() instead of p/invokes to check for existence of FileSystem items. The method throws access exceptions which we use for better error messages.
+- Remove the word 'Native' from method names.Change error message when using New-Item to create a symlink and the item exists (#3703)
+Fix New-Item to create correct symlink type (#2915) (#3509)
+
+Now `New-Item` can create a file symlink to a file target or to a non-existent target. It can also create a directory symlink to a directory target on Windows.Merge pull request #2441 from andschwa/native-perror
+
+Fix error handling of libpsl-nativeMerge pull request #804 from PowerShell/andschwa/symbolic-target
+
+Allow creation of symlink to non-existent targetQuery: Merge query optimizing expression visitors
+
+Part of #18923
+
+Resolves #20155
+Resolves #20369
+We convert Queryable.Contains to Queryable.Any after navigation expansion has run so only true queraybles would have Queryable.Contains. Array properties would have Enumerable.Contains hence does not get rewritten.
+
+Resolves #19433Query: Convert FromSql methods to custom query roots
+
+- Avoids any specific processing in core provider
+- Takes care of parameterization correctly
+- Also improved parameter extraction by creating parameter for any expression outside of lambda even when not a method call argument
+
+Part of #20146Query: Introduce custom query root expression
+
+- Use expression for query roots rather tha constant of entity queryable
+- Make it easy to access EntityType without need of any interface
+- Make IAsyncQueryProvider public as it is part of QueryRootExpression
+  - A query root contains both entity type and query provider so that multiple context cannot be used inside same query
+- Update expression printing of DbSet to take care of shared type entity type
+- Fix bug to compare query roots of shared type entity type more accurately
+- Remove IEntityQueryable interface, detaching query provider happens on query root expression
+- Remove IsEntityQueryable method as we no longer create constant expression of entity queryable
+
+Part of #20146Query: Print better expression trees
+
+- Removed parenthesis around IPrintableExpression since it was making printing of query roots bad.
+  - Individual expression should decide if it wants to add parenthesis around it.
+- Reduce the expression tree before printing in Navigation expansion for more human readable form.
+
+Required for #20146Query: Make IEntityType part of EntityQueryable
+
+Part of #9914
+
+With shared entity types query root can no longer be identified using just type.
+
+Part of #18923Query: Translate Queryable.Reverse()
+
+Resolves #17388
+
+In order to translate Reverse, we reverse the existing ordering. If there is no existing ordering then we throw translation failure.Merge branch 'release/3.0'Merge branch 'release/3.0'Merge pull request #17118 from dotnet-maestro-bot/merge/release/3.0-to-master
+
+[automated] Merge branch 'release/3.0' => 'master'Merge branch 'release/3.0'Merge branch 'release/3.0' => 'master' (#17064)
+Merge branch 'release/3.0'During Tab Completion, skip file if can't read file attributes (#10910)
+Enable case-insensitive tab completion for files and folders on case-sensitive filesystem (#8128)
+Adding support for Typeinference based on runtime variable values (#2744)
+
+* Refactored the type inference code in preparation to make it a public api.
+* Added type inference tests
+
+Fixes #2567Cleanup workflow code (#9638)
+
+* Remove WorkFlowInfo type
+
+* Remove condition for UseSharedProcess
+
+* Remove PSWorkflowJob condition
+
+* Remove workflow from ValidateSet
+
+* Remove workflow from CommandTypes enum
+
+* Remove workflow from EventManager
+
+* Remove workflow from Get-Help
+
+* Remove WorkflowFileExtension ".xaml" from ModuleIntrinsics
+
+* Remove WorkflowFileExtension ".xaml" from ModuleCmdletBase
+
+* Remove workflow from PSModuleInfo
+
+* Remove workflow from CustomShellCommands
+
+* Remove workflow from InitialSessionStateProvider
+
+* Remove WriteWorkflowDebugNotSupportedError()
+
+* Remove unneeded resource strings from Module.cs
+
+* Remove xaml from valid extension list
+Cleanup `AutomationEngine` and remove extra `SetSessionStateDrive` method call (#10416)
+Fix minor CodeFactor style issues in ModuleCmdletBase (#9915)
+Remove space character after '!' (#8507)
+Fix spurious error generated when importing cmdlets from an in-memory assembly (#4117)
+
+Merge pull request #917 from PowerShell/andschwa/import-psreadline
+
+Import PSReadLine

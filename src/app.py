@@ -8,6 +8,8 @@ import plotly.graph_objects as go
 import pandas as pd
 import violin_plot
 import utils
+import word_cloud
+import base64
 
 path = str(Path(__file__).parents[1])
 
@@ -112,7 +114,26 @@ app.layout = html.Div(children=[
         dcc.Graph(id='x-time-series'),
         dcc.Graph(id='y-time-series'),
     ], style={'display': 'inline-block', 'width': '49%'}),
-
+    
+    html.Br(),
+    html.H3(children='Word Cloud'),
+    html.Label('Languages'),
+    html.Div([
+        dcc.Dropdown(
+            id='language-dropdown-wordcloud',
+            options=[
+                {'label': 'C#', 'value': 'C#'},
+                {'label': 'C++', 'value': 'C++'},
+                {'label': 'Java', 'value': 'Java'},
+                {'label': 'JavaScript', 'value': 'JavaScript'},
+                {'label': 'Python', 'value': 'Python'}
+            ],
+            value=['C#', 'C++', 'Java', 'JavaScript', 'Python'],
+            multi=True
+        ),
+    ], style={'width': '35%', 'display': 'inline-block'}),
+    html.Br(),
+    html.Img(id='graph-wordcloud', style={'height':'40%', 'width':'40%'}),
 
 ])
 
@@ -207,6 +228,19 @@ def update_nloc(hoverData, axis_type):
 
     title = '<b>{}</b><br>'.format(key)
     return create_time_series(dff, axis_type, title, 'nloc')
+
+
+@app.callback(
+    Output('graph-wordcloud', 'src'),
+    [Input('language-dropdown-wordcloud','value')])
+def update_wordcloud(selected_language):
+
+    if(len(selected_language)):
+        word_cloud.generate_word_cloud(selected_language)
+    
+    encoded_image = base64.b64encode(open(path + '/src/word-cloud.png', 'rb').read())
+
+    return 'data:image/png;base64,{}'.format(encoded_image.decode())
 
 
 if __name__ == '__main__':
