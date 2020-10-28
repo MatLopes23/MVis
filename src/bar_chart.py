@@ -9,8 +9,7 @@ def generate_bar_chart():
 
 
     fig = px.bar(df_weekdays, x="weekday", y="total", color="language",
-    animation_frame="year", animation_group="weekday", text="total")
-
-    fig.update_traces(textposition='outside')
+    animation_frame="year", animation_group="weekday", text="total", height=600, range_y=[0, 1900])
+    fig.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 2000
     #fig.show()
     return fig

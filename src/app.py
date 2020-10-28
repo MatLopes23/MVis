@@ -9,6 +9,7 @@ import pandas as pd
 import violin_plot
 import utils
 import word_cloud
+import bar_chart
 import base64
 
 path = str(Path(__file__).parents[1])
@@ -24,6 +25,7 @@ df_random_methods = pd.read_csv(path + '/Datasets/data_set_random_methods.csv')
 df_history_complex = pd.read_csv(path + '/Datasets/data_set_complexity_history_all_languages_top_complex.csv')
 
 violin_plot = violin_plot.generate_violin_plot(df_complex_methods, df_random_methods)
+bar_chart = bar_chart.generate_bar_chart()
 
 available_languages = df_complex_methods['language'].unique()
 
@@ -115,6 +117,10 @@ app.layout = html.Div(children=[
         dcc.Graph(id='y-time-series'),
     ], style={'display': 'inline-block', 'width': '49%'}),
     
+    html.H3(children='Week'),
+    html.Br(),
+    dcc.Graph(figure=bar_chart),
+
     html.Br(),
     html.H3(children='Word Cloud'),
     html.Label('Languages'),
@@ -132,6 +138,7 @@ app.layout = html.Div(children=[
             multi=True
         ),
     ], style={'width': '35%', 'display': 'inline-block'}),
+
     html.Br(),
     html.Img(id='graph-wordcloud', style={'height':'40%', 'width':'40%'}),
 
