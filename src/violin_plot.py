@@ -1,6 +1,6 @@
 import plotly.graph_objects as go
 
-def generate_violin_plot(df_complex, df_random):
+def generate_violin_plot(df_complex, df_random, colors):
     violin_plot = go.Figure()
 
     violin_plot.add_trace(go.Violin(x=df_complex['language'],
@@ -19,7 +19,11 @@ def generate_violin_plot(df_complex, df_random):
     violin_plot.update_layout(violinmode='group', margin={'l': 40, 'b': 40, 't': 10, 'r': 10})
     violin_plot.update_xaxes(title='Languages')
     violin_plot.update_yaxes(title='Cyclomatic Complexity')
+    violin_plot.update_layout(plot_bgcolor=colors['background'],
+                              paper_bgcolor=colors['background'], 
+                              font_color=colors['text'])
 
-    
+    violin_plot.update_xaxes(showgrid=False)
+    violin_plot.update_yaxes(showgrid=False)
     return violin_plot
     

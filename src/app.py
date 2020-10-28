@@ -10,24 +10,13 @@ import violin_plot
 import utils
 import word_cloud
 import bar_chart
+import scatter_repositories
 import base64
 
 path = str(Path(__file__).parents[1])
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app = dash.Dash(__name__, title='MVis')
 server = app.server
-
-df = pd.read_csv(path + '/Datasets/data_set_repositories.csv')
-df_complex_methods = pd.read_csv(path + '/Datasets/data_set_top_complex_methods.csv')
-df_random_methods = pd.read_csv(path + '/Datasets/data_set_random_methods.csv')
-df_history_complex = pd.read_csv(path + '/Datasets/data_set_complexity_history_all_languages_top_complex.csv')
-
-violin_plot = violin_plot.generate_violin_plot(df_complex_methods, df_random_methods)
-bar_chart = bar_chart.generate_bar_chart()
-
-available_languages = df_complex_methods['language'].unique()
 
 color_discrete_map = {'C#': 'rgb(148, 140, 249)',
                       'C++': 'rgb(243, 130, 110)',
@@ -35,29 +24,31 @@ color_discrete_map = {'C#': 'rgb(148, 140, 249)',
                       'JavaScript': 'rgb(194, 143, 250)',
                       'Python': 'rgb(255, 187, 136)'}
 
+colors = {
+    'background': 'rgba(0,0,0,0)',
+    'text': '#FFFFFF',
+    'grid': '#C4C4C4'
+}
+
+df = pd.read_csv(path + '/Datasets/data_set_repositories.csv')
+df_complex_methods = pd.read_csv(path + '/Datasets/data_set_top_complex_methods.csv')
+df_random_methods = pd.read_csv(path + '/Datasets/data_set_random_methods.csv')
+df_history_complex = pd.read_csv(path + '/Datasets/data_set_complexity_history_all_languages_top_complex.csv')
+
+violin_plot = violin_plot.generate_violin_plot(df_complex_methods, df_random_methods, colors)
+bar_chart = bar_chart.generate_bar_chart(path, color_discrete_map, colors)
+scatter_repositories = scatter_repositories.generate_scatter_repositories(path, color_discrete_map, colors)
+
+available_languages = df_complex_methods['language'].unique()
+
+
+
 app.layout = html.Div(children=[
     html.H2(children='Métodos Complexos'),
 
     html.H3(children='Quais são os projetos analisados?'),
 
-    html.Label('Languages'),
-    html.Div([
-        dcc.Dropdown(
-            id='language-dropdown',
-            options=[
-                {'label': 'C#', 'value': 'C#'},
-                {'label': 'C++', 'value': 'C++'},
-                {'label': 'Java', 'value': 'Java'},
-                {'label': 'JavaScript', 'value': 'JavaScript'},
-                {'label': 'Python', 'value': 'Python'}
-            ],
-            value=['C#', 'C++', 'Java', 'JavaScript', 'Python'],
-            multi=True
-        ),
-    ], style={'width': '35%', 'display': 'inline-block'}),
-
-
-    dcc.Graph(id='graph-repositories'),
+    dcc.Graph(figure=scatter_repositories),
     html.Br(),
     html.H3(children='Como é a complexidade dos métodos?'),
 
@@ -68,15 +59,6 @@ app.layout = html.Div(children=[
     html.Div([
 
         html.Div([
-            html.Label('Languages'),
-
-            dcc.Dropdown(
-                id='filter-language',
-                options=[{'label': i, 'value': i} for i in available_languages],
-                value=['C#', 'C++', 'Java', 'JavaScript', 'Python'],
-                multi=True
-            ),
-            html.Br(),
             html.Div([
                 'Cyclomatic Complexity:',
                 dcc.RadioItems(
@@ -100,11 +82,7 @@ app.layout = html.Div(children=[
         ],
         style={'width': '35%', 'display': 'inline-block'}),
 
-    ], style={
-        'borderBottom': 'thin lightgrey solid',
-        'backgroundColor': 'rgb(250, 250, 250)',
-        'padding': '10px 5px'
-    }),
+    ]),
 
     html.Div([
         dcc.Graph(
@@ -123,7 +101,6 @@ app.layout = html.Div(children=[
 
     html.Br(),
     html.H3(children='Word Cloud'),
-    html.Label('Languages'),
     html.Div([
         dcc.Dropdown(
             id='language-dropdown-wordcloud',
@@ -145,39 +122,15 @@ app.layout = html.Div(children=[
 ])
 
 @app.callback(
-    Output('graph-repositories', 'figure'),
-    [Input('language-dropdown','value')])
-
-def update_repositories(selected_language):
-
-    filtered_df = df[df.language.isin(selected_language)]
-
-    if(len(filtered_df)):
-        fig = px.scatter(filtered_df, x="stars", y="commits",
-                        size="files", color="language", hover_name="repository", 
-                        size_max=55, color_discrete_map=color_discrete_map)
-        
-
-        fig.update_layout(transition_duration=500, margin={'l': 40, 'b': 40, 't': 10, 'r': 10})
-    else:
-        fig = px.scatter()
-    
-
-    return fig
-
-@app.callback(
     dash.dependencies.Output('crossfilter-indicator-scatter', 'figure'),
-    [dash.dependencies.Input('filter-language', 'value'),
-     dash.dependencies.Input('crossfilter-xaxis-type', 'value'),
+    [dash.dependencies.Input('crossfilter-xaxis-type', 'value'),
      dash.dependencies.Input('crossfilter-yaxis-type', 'value')])
-def update_complex_methods(filter_language, xaxis_type, yaxis_type):
+def update_complex_methods( xaxis_type, yaxis_type):
 
-    dff = df_complex_methods[df_complex_methods.language.isin(filter_language)]
-
-    fig = px.scatter(dff, x='cyclomatic_complexity', y='nloc',
+    fig = px.scatter(df_complex_methods, x='cyclomatic_complexity', y='nloc',
             hover_name='method', color='language', color_discrete_map=color_discrete_map)
 
-    fig.update_traces(customdata=dff['project']+dff['path']+dff['method'])
+    fig.update_traces(customdata=df_complex_methods['project']+df_complex_methods['path']+df_complex_methods['method'])
 
     fig.update_xaxes(title='Cyclomatic Complexity', type='linear' if xaxis_type == 'Linear' else 'log')
 
@@ -186,6 +139,12 @@ def update_complex_methods(filter_language, xaxis_type, yaxis_type):
     fig.update_layout(margin={'l': 40, 'b': 40, 't': 10, 'r': 0}, hovermode='closest', transition_duration=500,
                       legend=dict(orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1))
 
+    fig.update_layout(plot_bgcolor=colors['background'],
+                              paper_bgcolor=colors['background'], 
+                              font_color=colors['text'])
+    
+    fig.update_xaxes(showgrid=False)
+    fig.update_yaxes(showgrid=False)
 
     return fig
 
@@ -210,6 +169,11 @@ def create_time_series(dff, axis_type, title, data_type):
                        bgcolor='rgba(255, 255, 255, 0.5)', text= utils.get_only_name_method(title))
 
     fig.update_layout(height=225, margin={'l': 20, 'b': 30, 'r': 10, 't': 10})
+    fig.update_layout(plot_bgcolor=colors['background'],
+                              paper_bgcolor=colors['background'], 
+                              font_color=colors['text'])
+    
+    fig.update_yaxes(showgrid=False)
 
     return fig
     
