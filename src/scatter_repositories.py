@@ -5,7 +5,8 @@ def generate_scatter_repositories(path, color_discrete_map, colors):
     df = pd.read_csv(path + '/Datasets/data_set_repositories.csv')
     fig = px.scatter(df, x="stars", y="commits",
                         size="files", color="language", hover_name="repository", 
-                        size_max=55, color_discrete_map=color_discrete_map)
+                        size_max=55, color_discrete_map=color_discrete_map,
+                        labels={"commits": "Commits", "stars": "Stars"})
         
 
     fig.update_layout(transition_duration=500, margin={'l': 40, 'b': 40, 't': 10, 'r': 10})

@@ -197,22 +197,22 @@ app.layout = html.Div(children=[
     [dash.dependencies.Input('crossfilter-xaxis-type', 'value'),
      dash.dependencies.Input('crossfilter-yaxis-type', 'value')])
 def update_complex_methods( xaxis_type, yaxis_type):
-
+    
     fig = px.scatter(df_complex_methods, x='cyclomatic_complexity', y='nloc',
-            hover_name='method', color='language', color_discrete_map=color_discrete_map)
+            hover_name='method', color='language', color_discrete_map=color_discrete_map, hover_data=['path'])
 
-    fig.update_traces(customdata=df_complex_methods['project']+df_complex_methods['path']+df_complex_methods['method'])
+    #fig.update_traces(customdata=df_complex_methods.index)
 
     fig.update_xaxes(title='Cyclomatic Complexity', type='linear' if xaxis_type == 'Linear' else 'log')
 
     fig.update_yaxes(title='Nloc', type='linear' if yaxis_type == 'Linear' else 'log')
 
-    fig.update_layout(margin={'l': 40, 'b': 40, 't': 10, 'r': 0}, hovermode='closest', transition_duration=500,
+    fig.update_layout(margin={'l': 40, 'b': 40, 't': 60, 'r': 0}, hovermode='closest', transition_duration=500,
                       legend=dict(orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1))
 
     fig.update_layout(plot_bgcolor=colors['background'],
-                              paper_bgcolor=colors['background'], 
-                              font_color=colors['text'])
+                      paper_bgcolor=colors['background'], 
+                      font_color=colors['text'])
     
     fig.update_xaxes(showgrid=False)
     fig.update_yaxes(showgrid=False)
@@ -221,11 +221,11 @@ def update_complex_methods( xaxis_type, yaxis_type):
 
 
 def create_time_series(dff, axis_type, title, data_type):
-
     x_axis = range(len(dff), 0,-1)
-    
+
     if(len(x_axis) > 0):
-        fig = px.scatter(dff, y=data_type, x=x_axis , labels=dict(cyclomatic_complexity='Cyclomatic Complexity', nloc='Nloc') )
+        fig = px.scatter(dff, y=data_type, x=x_axis, color='language', color_discrete_map= color_discrete_map, labels=dict(cyclomatic_complexity='Cyclomatic Complexity', nloc='Nloc'))
+        fig.update_layout(showlegend=False)
     else:
         fig = px.scatter(dff, y=data_type, labels=dict(cyclomatic_complexity='Cyclomatic Complexity', nloc='Nloc'))
         
@@ -235,7 +235,7 @@ def create_time_series(dff, axis_type, title, data_type):
 
     fig.update_yaxes(type='linear' if axis_type == 'Linear' else 'log')
 
-    fig.add_annotation(x=0, y=0.85, xanchor='left', yanchor='bottom',
+    fig.add_annotation(x=0.1, y=0.95, xanchor='left', yanchor='bottom',
                        xref='paper', yref='paper', showarrow=False, align='left',
                        bgcolor='rgba(255, 255, 255, 0.5)', text= utils.get_only_name_method(title))
 
@@ -253,10 +253,18 @@ def create_time_series(dff, axis_type, title, data_type):
     [dash.dependencies.Input('crossfilter-indicator-scatter', 'hoverData'),
      dash.dependencies.Input('crossfilter-xaxis-type', 'value')])
 def update_complexity(hoverData, axis_type):
-    key = hoverData['points'][0]['customdata']
-    dff = df_history_complex[df_history_complex['project']+df_history_complex['path']+df_history_complex['method'] == key]
 
-    title = '<b>{}</b><br>'.format(key)
+    current_path = ''
+    current_method = ''
+
+    if(hoverData['points'][0]['customdata'] != ''):
+        current_path = hoverData['points'][0]['customdata'][0]
+        current_method = hoverData['points'][0]['hovertext']
+
+    dff = df_history_complex[(df_history_complex['path'] == current_path) &
+                             (df_history_complex['method'] == current_method)]
+
+    title = '<b>{}</b><br>'.format(current_method)
     return create_time_series(dff, axis_type, title, 'cyclomatic_complexity')
 
 
@@ -265,10 +273,18 @@ def update_complexity(hoverData, axis_type):
     [dash.dependencies.Input('crossfilter-indicator-scatter', 'hoverData'),
      dash.dependencies.Input('crossfilter-yaxis-type', 'value')])
 def update_nloc(hoverData, axis_type):
-    key = hoverData['points'][0]['customdata']
-    dff = df_history_complex[df_history_complex['project']+df_history_complex['path']+df_history_complex['method'] == key]
 
-    title = '<b>{}</b><br>'.format(key)
+    current_path = ''
+    current_method = ''
+
+    if(hoverData['points'][0]['customdata'] != ''):
+        current_path = hoverData['points'][0]['customdata'][0]
+        current_method = hoverData['points'][0]['hovertext']
+
+    dff = df_history_complex[(df_history_complex['path'] == current_path) &
+                             (df_history_complex['method'] == current_method)]
+
+    title = '<b>{}</b><br>'.format(current_method)
     return create_time_series(dff, axis_type, title, 'nloc')
 
 
