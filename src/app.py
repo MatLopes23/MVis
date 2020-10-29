@@ -41,84 +41,155 @@ scatter_repositories = scatter_repositories.generate_scatter_repositories(path, 
 
 available_languages = df_complex_methods['language'].unique()
 
-
-
 app.layout = html.Div(children=[
-    html.H2(children='Métodos Complexos'),
+    html.Div(className='navbar navbar-expand-lg fixed-top navbar-dark bg-primary', children=[
+        html.Div(className='container', children=[
+            html.H5('MVis - Visualization of Methods')
+        ])
+    ]),
+    html.Div(className='container', children=[
+        html.Br(),
+        html.Br(),
+        html.Br(),
 
-    html.H3(children='Quais são os projetos analisados?'),
+        html.H2(children='Métodos Complexos'),
 
-    dcc.Graph(figure=scatter_repositories),
-    html.Br(),
-    html.H3(children='Como é a complexidade dos métodos?'),
+        html.P("""Durante a evolução do software, novos recursos são, adicionados, bugs são corrigidos e o
+        código é adaptado devido às mudançaas no ambiente. Muitas vezes, essas mudançaas são
+        realizadas sem os devidos cuidados, ou seja, os desenvolvedores não aplicam refatoração
+        nem limpeza de código, diminuindo a qualidade do software. Consequentemente, com o
+        tempo, os sistemas de software tendem a aumentar sua complexidade geral e se tornam mais
+        difíceis de manter. Uma melhor compreensão de como a complexidade evolui é fundamental
+        para detectar a área de risco dentro de um sistema de software que precisa de atenção e
+        para conduzir atividades de desenvolvimento futuras. Essas informações são relevantes para
+        pesquisadores e desenvolvedores sobre a qualidade de software."""),
 
-    dcc.Graph(figure=violin_plot),
+        html.P("""A complexidade de um sistema pode ser calculada e visualizada de varias maneiras, podemos
+        avaliar apenas o sistema como um todo, em que não conseguimos identificar exatamente quais
+        métodos ou classes estão realmente impactando no crescimento da complexidade do sistema.
+        Uma outra perspectiva também pode se utilizada para avaliar a complexidade, analisando
+        apenas métodos em uma granularidade mais fina, aumentando a precisão
+        dos dados observados. Sendo assim, propomos identificar os métodos mais complexos de
+        projetos disponíveis no GitHub, métodos que são escritos em 5 linguagens de programação
+        distintas (C, C++, Java, JavaScript, Python) e avaliar o histórico de evoluçãao desses métodos
+        de acordo com suas alterações. Complexidade Ciclomática foi a métrica utilizada para calculo de
+        complexidade dos métodos analisados, essa é uma métrica de qualidade de softare que é bastante 
+        utilizada na área de Engenharia de Software."""),
 
-    html.Br(),
-    html.H3(children='Como estes métodos evoluem?'),
-    html.Div([
+        html.H3(children='Quais são os projetos analisados?'),
+
+        dcc.Graph(figure=scatter_repositories),
+        html.Br(),
+        html.Br(),
+        
+        html.H3(children='Como é a complexidade dos métodos?'),
+
+        html.P("""O gráfico a seguir busca comparar a complexidade dos métodos complexos analisados,
+         para isso foram selecioandos métodos aléatorios para efeito de comparação. Assim, observa-se
+         o quão complexo esses métodos são, indepentemente da linguagem de programação."""),
+
+        dcc.Graph(figure=violin_plot),
+
+        html.Br(),
+        html.H3(children='Como estes métodos evoluem?'),
+
+        html.P("""O proximo gráfico tem como objetivo analisar o historico de evolução de cada um dos métodos,
+         representados por pontos. O eixo y possui a quantidade de linhas de código fonte (Nloc), enquanto o eixo
+          x apresenta a complexidade calculada na versão mais recente de cada método. A interação com o gráfico 
+          proporciona a visualição das curvas de evolução das duas métricas."""),
 
         html.Div([
-            html.Div([
-                'Cyclomatic Complexity:',
-                dcc.RadioItems(
-                    id='crossfilter-xaxis-type',
-                    options=[{'label': i, 'value': i} for i in ['Linear', 'Log']],
-                    value='Linear',
-                    labelStyle={'display': 'inline-block'},
-                ),
-            ], style={'width': '49%', 'display': 'inline-block'}),
 
             html.Div([
-                'Nloc:',
-                dcc.RadioItems(
-                    id='crossfilter-yaxis-type',
-                    options=[{'label': i, 'value': i} for i in ['Linear', 'Log']],
-                    value='Linear',
-                    labelStyle={'display': 'inline-block'}
-                )
-            ], style={'width': '49%', 'display': 'inline-block'})
-            
-        ],
-        style={'width': '35%', 'display': 'inline-block'}),
+                html.Div([
+                    'Cyclomatic Complexity:',
+                    dcc.RadioItems(
+                        id='crossfilter-xaxis-type',
+                        options=[{'label': i, 'value': i} for i in ['Linear', 'Log']],
+                        value='Linear',
+                        labelStyle={'display': 'inline-block'},
+                    ),
+                ], style={'width': '49%', 'display': 'inline-block'}),
 
-    ]),
-
-    html.Div([
-        dcc.Graph(
-            id='crossfilter-indicator-scatter',
-            hoverData={'points': [{'customdata': ''}]}
-        )
-    ], style={'width': '49%', 'display': 'inline-block', 'padding': '0 20'}),
-    html.Div([
-        dcc.Graph(id='x-time-series'),
-        dcc.Graph(id='y-time-series'),
-    ], style={'display': 'inline-block', 'width': '49%'}),
-    
-    html.H3(children='Week'),
-    html.Br(),
-    dcc.Graph(figure=bar_chart),
-
-    html.Br(),
-    html.H3(children='Word Cloud'),
-    html.Div([
-        dcc.Dropdown(
-            id='language-dropdown-wordcloud',
-            options=[
-                {'label': 'C#', 'value': 'C#'},
-                {'label': 'C++', 'value': 'C++'},
-                {'label': 'Java', 'value': 'Java'},
-                {'label': 'JavaScript', 'value': 'JavaScript'},
-                {'label': 'Python', 'value': 'Python'}
+                html.Div([
+                    'Nloc:',
+                    dcc.RadioItems(
+                        id='crossfilter-yaxis-type',
+                        options=[{'label': i, 'value': i} for i in ['Linear', 'Log']],
+                        value='Linear',
+                        labelStyle={'display': 'inline-block'}
+                    )
+                ], style={'width': '49%', 'display': 'inline-block'})
+                
             ],
-            value=['C#', 'C++', 'Java', 'JavaScript', 'Python'],
-            multi=True
-        ),
-    ], style={'width': '35%', 'display': 'inline-block'}),
+            style={'width': '35%', 'display': 'inline-block'}),
 
-    html.Br(),
-    html.Img(id='graph-wordcloud', style={'height':'40%', 'width':'40%'}),
+        ]),
 
+        html.Div([
+            dcc.Graph(
+                id='crossfilter-indicator-scatter',
+                hoverData={'points': [{'customdata': ''}]}
+            )
+        ], style={'width': '49%', 'display': 'inline-block', 'padding': '0 20'}),
+        html.Div([
+            dcc.Graph(id='x-time-series'),
+            dcc.Graph(id='y-time-series'),
+        ], style={'display': 'inline-block', 'width': '49%'}),
+        
+
+        html.Br(),
+        html.Br(),
+        html.H3(children='Quando ocorreram as alterações?'),
+
+        html.P("""A animação a seguir busca analisar como essas alterações ocorreram ao longo dos anos no métodos complexos.
+        Os dias da semana demonstram um comportamento interessante de poucas modificações aos sábados e domingos em 
+        todas as linguagenes de programação."""),
+
+        dcc.Graph(figure=bar_chart),
+
+        html.Br(),
+        html.Br(),
+        html.Div(className='row', children=[
+            html.Div(className='col-lg-5', children=[
+                html.H3(children='O que os desenvolvedores dizem?'),
+                html.P("""A nuvem de palavras ao lado, com formato do ícone do Git, foi gerada utilizando as mensagens
+                dos commits que modificaram métodos complexos. Para cada conjunto de linhagens selecionadas observa-se 
+                padrões diferentes. Algumas palavras foram removidas manualmente, removendo algumas mensagens automaticas
+                que eram geradas em alguns commits."""),
+            ]),
+            html.Div(className='col-lg-6', children=[
+                html.Div([
+                    dcc.Dropdown(
+                        id='language-dropdown-wordcloud',
+                        options=[
+                            {'label': 'C#', 'value': 'C#'},
+                            {'label': 'C++', 'value': 'C++'},
+                            {'label': 'Java', 'value': 'Java'},
+                            {'label': 'JavaScript', 'value': 'JavaScript'},
+                            {'label': 'Python', 'value': 'Python'}
+                        ],
+                        value=['C#', 'C++', 'Java', 'JavaScript', 'Python'],
+                        multi=True
+                    ),
+                ], style={'display': 'inline-block'}),
+
+                html.Br(),
+                html.Img(id='graph-wordcloud', style={'height':'95%', 'width':'95%'}),
+            ]),
+        ]),
+
+        html.Br(),
+        html.Hr(style={'color':'gray','background-color':'gray'}),
+        html.Div(className='footer', children=[
+        html.H6('Desenvolvido por Mateus Lopes.'),
+        html.Ul(className='list-unstyled', children=[
+            html.Li(html.A(href='https://github.com/MatLopes23/MVis', children=['GitHub'])),
+            html.Li(html.A(href='https://www.linkedin.com/in/mateus-lopes-380114124/', children=['Linkedin']))
+        ]),
+    ])
+    ]),
+    
 ])
 
 @app.callback(
